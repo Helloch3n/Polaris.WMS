@@ -16,10 +16,12 @@ namespace Polaris.WMS.InventoryManage.Domain.Reels
         IRepository<Reel, Guid> reelRepository,
         IRepository<InventoryTransaction, Guid> transactionRepository,
         IInventoryRepository inventoryRepository,
-        InventoryTransactionManager inventoryTransactionManager,
-        IExternalLocationAdapter externalLocationAdapter)
+        InventoryTransactionManager inventoryTransactionManager
+        //IExternalLocationAdapter externalLocationAdapter
+        )
         : DomainService
     {
+        private IExternalLocationAdapter ExternalLocationAdapter => LazyServiceProvider.LazyGetRequiredService<IExternalLocationAdapter>();
         /// <summary>
         /// 创建盘具聚合，并在盘号为空时自动生成盘号。
         /// </summary>
@@ -144,7 +146,7 @@ namespace Polaris.WMS.InventoryManage.Domain.Reels
 
             // 2. 跨聚合校验：目标库位合法性
             //var targetLocation = await _locationRepository.GetAsync(targetLocationId);
-            var targetLocation = await externalLocationAdapter.GetLocationAsync(targetLocationId);
+            var targetLocation = await ExternalLocationAdapter.GetLocationAsync(targetLocationId);
 
             if (targetLocation.Status == LocationStatus.Locked)
             {
@@ -168,7 +170,7 @@ namespace Polaris.WMS.InventoryManage.Domain.Reels
             if (originalLocationId.HasValue)
             {
                 //sourceLocation = await _locationRepository.FirstOrDefaultAsync(x => x.Id == originalLocationId.Value);
-                sourceLocation = await externalLocationAdapter.GetLocationAsync(originalLocationId.Value);
+                sourceLocation = await ExternalLocationAdapter.GetLocationAsync(originalLocationId.Value);
             }
 
             // 3. 改变盘具自身的物理位置
@@ -177,13 +179,13 @@ namespace Polaris.WMS.InventoryManage.Domain.Reels
 
             // 4. 刷新目标库位状态
             //await _locationManager.RefreshStatusByLoadAsync(targetLocationId);
-            await externalLocationAdapter.RefreshStatusByLoadAsync(targetLocationId);
+            await ExternalLocationAdapter.RefreshStatusByLoadAsync(targetLocationId);
 
             // 5. 刷新原库位状态
             if (originalLocationId.HasValue)
             {
                 //await _locationManager.RefreshStatusByLoadAsync(originalLocationId.Value);
-                await externalLocationAdapter.RefreshStatusByLoadAsync(originalLocationId.Value);
+                await ExternalLocationAdapter.RefreshStatusByLoadAsync(originalLocationId.Value);
             }
 
             // 6. 核心动作：生成库存流水 & 同步库存明细的位置

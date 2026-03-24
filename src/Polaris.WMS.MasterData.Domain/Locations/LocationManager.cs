@@ -14,11 +14,14 @@ namespace Polaris.WMS.MasterData.Domain.Locations
     public class LocationManager(
         ILocationRepository locationRepository,
         IZoneRepository zoneRepository,
-        IRepository<Warehouse, Guid> warehouseRepository,
-        IReelAllocationAdapter reelAllocationAdapter,
-        IInventoryAllocationAdapter inventoryAllocationAdapter)
+        IRepository<Warehouse, Guid> warehouseRepository
+        //IReelAllocationAdapter reelAllocationAdapter,
+        //IInventoryAllocationAdapter inventoryAllocationAdapter
+        )
         : DomainService
     {
+        private IReelAllocationAdapter ReelAllocationAdapter => LazyServiceProvider.LazyGetRequiredService<IReelAllocationAdapter>();
+        private IInventoryAllocationAdapter InventoryAllocationAdapter => LazyServiceProvider.LazyGetRequiredService<IInventoryAllocationAdapter>();
         /// <summary>
         /// 根据库位装载情况刷新库位状态。
         /// </summary>
@@ -27,14 +30,14 @@ namespace Polaris.WMS.MasterData.Domain.Locations
         {
             var location = await locationRepository.GetAsync(locationId);
 
-            var reels = await reelAllocationAdapter.GetReelInfosByLocationIdAsync(locationId);
+            var reels = await ReelAllocationAdapter.GetReelInfosByLocationIdAsync(locationId);
             var reelCount = reels.Count;
 
             var reelIds = reels.Select(x => x.Id).ToList();
             var inventoryCount = 0;
             if (reelIds.Count > 0)
             {
-                var inventorys = await inventoryAllocationAdapter.GetInventoryByReels(reelIds);
+                var inventorys = await InventoryAllocationAdapter.GetInventoryByReels(reelIds);
                 inventoryCount = inventorys.Count;
             }
 

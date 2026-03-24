@@ -2,9 +2,14 @@
 using System;
 using Polaris.WMS.Inbound.EntityFrameworkCore;
 using Polaris.WMS.InventoryManage.Domain.inventories;
+using Polaris.WMS.InventoryManage.Domain.Reels;
 using Polaris.WMS.InventoryManage.EntityFrameworkCore;
 using Polaris.WMS.InventoryManage.EntityFrameworkCore.Inventories;
+using Polaris.WMS.MasterData.Domain.Locations;
+using Polaris.WMS.MasterData.Domain.Zones;
 using Polaris.WMS.MasterData.EntityFrameworkCore;
+using Polaris.WMS.MasterData.EntityFrameworkCore.Locations;
+using Polaris.WMS.MasterData.EntityFrameworkCore.Zones;
 using Polaris.WMS.Outbound.EntityFrameworkCore;
 using Polaris.WMS.TaskRouting.EntityFrameworkCore;
 using Volo.Abp.AuditLogging.EntityFrameworkCore;
@@ -63,16 +68,23 @@ public class WMSEntityFrameworkCoreModule : AbpModule
             options.ReplaceDbContext<IOutBoundDbContext>();
 
             // 如果模块中有自定义仓储(如 IInventoryRepository)，使用 ABP 的标准语法注册给 WMSDbContext
-            options.AddRepository<Inventory, InventoryRepository>();
+            // 主数据模块的自定义仓储
+            //options.AddRepository<Zone, ZoneRepository>();
+            //options.AddRepository<Location, LocationRepository>();
+
+            // 库存模块的自定义仓储
+            //options.AddRepository<Inventory, InventoryRepository>();
+            //options.AddRepository<Reel, ReelRepository>();
         });
 
-        // context.Services.AddAbpDbContext<InventoryDbContext>(options =>
-        // {
-        //     options.AddRepository<Inventory, InventoryRepository>();
-        // });
-
-        // 显式绑定自定义仓储接口，避免模块化改造后接口未被自动暴露
-        // context.Services.AddTransient<IInventoryRepository, InventoryRepository>();
+        // // 显式绑定自定义仓储接口，避免模块化改造后接口未被自动暴露
+        // // 1. 主数据模块 (MasterData) 的自定义仓储
+        context.Services.AddTransient<IZoneRepository, ZoneRepository>();
+        context.Services.AddTransient<ILocationRepository, LocationRepository>();
+        //
+        // // 2. 库存模块 (InventoryManage) 的自定义仓储
+        context.Services.AddTransient<IInventoryRepository, InventoryRepository>();
+        // //context.Services.AddTransient<IReelRepository, ReelRepository>();
 
         if (AbpStudioAnalyzeHelper.IsInAnalyzeMode)
         {

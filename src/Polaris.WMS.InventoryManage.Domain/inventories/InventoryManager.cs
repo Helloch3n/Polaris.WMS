@@ -12,10 +12,12 @@ namespace Polaris.WMS.InventoryManage.Domain.inventories
         IRepository<Reel, Guid> reelRepository,
         ReelManager reelManager,
         IRepository<InventoryTransaction, Guid> transactionRepository,
-        InventoryTransactionManager inventoryTransactionManager,
-        IExternalLocationAdapter externalLocationAdapter)
+        InventoryTransactionManager inventoryTransactionManager
+        //IExternalLocationAdapter externalLocationAdapter
+        )
         : DomainService
     {
+        private IExternalLocationAdapter ExternalLocationAdapter => LazyServiceProvider.LazyGetRequiredService<IExternalLocationAdapter>();
         public async Task<InventoryManage.Domain.inventories.Inventory> ProductionReceiveAsync(
             string orderNo,
             Guid reelId,
@@ -62,7 +64,7 @@ namespace Polaris.WMS.InventoryManage.Domain.inventories
             reel.SetOccupied();
             //刷新库位状态
             //await locationManager.RefreshStatusByLoadAsync(locationId);
-            await externalLocationAdapter.RefreshStatusByLoadAsync(locationId);
+            await ExternalLocationAdapter.RefreshStatusByLoadAsync(locationId);
 
             await inventoryRepository.InsertAsync(inventory);
             await reelRepository.UpdateAsync(reel);
@@ -71,7 +73,7 @@ namespace Polaris.WMS.InventoryManage.Domain.inventories
 
             Guid? warehouseId = null;
             // var location = await locationRepository.GetAsync(locationId);
-            var location = await externalLocationAdapter.GetLocationAsync(locationId);
+            var location = await ExternalLocationAdapter.GetLocationAsync(locationId);
             warehouseId = location.WarehouseId;
 
             var transaction = await inventoryTransactionManager.CreateAsync(
@@ -132,7 +134,7 @@ namespace Polaris.WMS.InventoryManage.Domain.inventories
             if (locationId.HasValue)
             {
                 //var location = await locationRepository.GetAsync(locationId.Value);
-                var location = await externalLocationAdapter.GetLocationAsync(locationId.Value);
+                var location = await ExternalLocationAdapter.GetLocationAsync(locationId.Value);
                 warehouseId = location.WarehouseId;
             }
 
@@ -194,7 +196,7 @@ namespace Polaris.WMS.InventoryManage.Domain.inventories
             if (locationId.HasValue)
             {
                 //var location = await locationRepository.GetAsync(locationId.Value);
-                var location = await externalLocationAdapter.GetLocationAsync(locationId.Value);
+                var location = await ExternalLocationAdapter.GetLocationAsync(locationId.Value);
                 warehouseId = location.WarehouseId;
             }
 
@@ -251,7 +253,7 @@ namespace Polaris.WMS.InventoryManage.Domain.inventories
                 if (locationId.HasValue)
                 {
                     //await locationManager.RefreshStatusByLoadAsync(locationId.Value);
-                    await externalLocationAdapter.RefreshStatusByLoadAsync(locationId.Value);
+                    await ExternalLocationAdapter.RefreshStatusByLoadAsync(locationId.Value);
                 }
             }
         }
