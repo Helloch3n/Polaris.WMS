@@ -1,0 +1,52 @@
+﻿<Solution>
+    <Folder Name="/src/">
+        <Project Path="src/Polaris.WMS.Domain/Polaris.WMS.Domain.csproj" />
+        <Project Path="src/Polaris.WMS.Application/Polaris.WMS.Application.csproj" />
+        <Project Path="src/Polaris.WMS.EntityFrameworkCore/Polaris.WMS.EntityFrameworkCore.csproj" />
+        <Project Path="src/Polaris.WMS.Web/Polaris.WMS.Web.csproj" />
+        <Project Path="src/Polaris.WMS.Domain.Shared/Polaris.WMS.Domain.Shared.csproj" />
+        <Project Path="src/Polaris.WMS.Application.Contracts/Polaris.WMS.Application.Contracts.csproj" />
+        <Project Path="src/Polaris.WMS.HttpApi/Polaris.WMS.HttpApi.csproj" />
+        <Project Path="src/Polaris.WMS.HttpApi.Client/Polaris.WMS.HttpApi.Client.csproj" />
+        <Project Path="src/Polaris.WMS.DbMigrator/Polaris.WMS.DbMigrator.csproj" />
+    </Folder>
+    <Folder Name="/src/modules/" />
+    <Folder Name="/src/modules/Polaris.WMS.Inbound/">
+        <Project Path="src/Polaris.WMS.Inbound.Application.Contracts/Polaris.WMS.Inbound.Application.Contracts.csproj" />
+        <Project Path="src/Polaris.WMS.Inbound.Application/Polaris.WMS.Inbound.Application.csproj" />
+        <Project Path="src/Polaris.WMS.Inbound.Domain/Polaris.WMS.Inbound.Domain.csproj" />
+        <Project Path="src/Polaris.WMS.Inbound.EntityFrameworkCore/Polaris.WMS.Inbound.EntityFrameworkCore.csproj" />
+    </Folder>
+    <Folder Name="/src/modules/Polaris.WMS.Inventory/">
+        <Project Path="src/Polaris.WMS.InventoryManage.Application.Contracts/Polaris.WMS.InventoryManage.Application.Contracts.csproj" />
+        <Project Path="src/Polaris.WMS.InventoryManage.Application/Polaris.WMS.InventoryManage.Application.csproj" />
+        <Project Path="src/Polaris.WMS.InventoryManage.Domain/Polaris.WMS.InventoryManage.Domain.csproj" />
+        <Project Path="src/Polaris.WMS.InventoryManage.EntityFrameworkCore/Polaris.WMS.InventoryManage.EntityFrameworkCore.csproj" />
+    </Folder>
+    <Folder Name="/src/modules/Polaris.WMS.MasterData/">
+        <Project Path="src/Polaris.WMS.MasterData.Application.Contracts/Polaris.WMS.MasterData.Application.Contracts.csproj" />
+        <Project Path="src/Polaris.WMS.MasterData.Application/Polaris.WMS.MasterData.Application.csproj" />
+        <Project Path="src/Polaris.WMS.MasterData.Domain/Polaris.WMS.MasterData.Domain.csproj" />
+        <Project Path="src/Polaris.WMS.MasterData.EntityFrameworkCore/Polaris.WMS.MasterData.EntityFrameworkCore.csproj" />
+    </Folder>
+    <Folder Name="/src/modules/Polaris.WMS.Outbound/">
+        <Project Path="src/Polaris.WMS.Outbound.Application.Contracts/Polaris.WMS.Outbound.Application.Contracts.csproj" />
+        <Project Path="src/Polaris.WMS.Outbound.Application/Polaris.WMS.Outbound.Application.csproj" />
+        <Project Path="src/Polaris.WMS.Outbound.Domain/Polaris.WMS.Outbound.Domain.csproj" />
+        <Project Path="src/Polaris.WMS.Outbound.EntityFrameworkCore/Polaris.WMS.Outbound.EntityFrameworkCore.csproj" />
+    </Folder>
+    <Folder Name="/src/modules/Polaris.WMS.Task/">
+        <Project Path="src/Polaris.WMS.TaskRouting.Application.Contracts/Polaris.WMS.TaskRouting.Application.Contracts.csproj" />
+        <Project Path="src/Polaris.WMS.TaskRouting.Application/Polaris.WMS.TaskRouting.Application.csproj" />
+        <Project Path="src/Polaris.WMS.TaskRouting.Domain/Polaris.WMS.TaskRouting.Domain.csproj" />
+        <Project Path="src/Polaris.WMS.TaskRouting.EntityFrameworkCore/Polaris.WMS.TaskRouting.EntityFrameworkCore.csproj" />
+    </Folder>
+    <Folder Name="/test/">
+        <Project Path="test/Polaris.WMS.Application.Tests/Polaris.WMS.Application.Tests.csproj" />
+        <Project Path="test/Polaris.WMS.Web.Tests/Polaris.WMS.Web.Tests.csproj" />
+        <Project Path="test/Polaris.WMS.EntityFrameworkCore.Tests/Polaris.WMS.EntityFrameworkCore.Tests.csproj" />
+        <Project Path="test/Polaris.WMS.TestBase/Polaris.WMS.TestBase.csproj" />
+        <Project Path="test/Polaris.WMS.Domain.Tests/Polaris.WMS.Domain.Tests.csproj" />
+        <Project Path="test/Polaris.WMS.HttpApi.Client.ConsoleTestApp/Polaris.WMS.HttpApi.Client.ConsoleTestApp.csproj" />
+    </Folder>
+</Solution>

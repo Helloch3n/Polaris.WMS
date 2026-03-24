@@ -1,0 +1,56 @@
+﻿{
+  "id": "2dcc704c-c694-47e9-abf0-4425747c1b3c",
+  "creationTime": "01/30/2026 01:41:04 +00:00",
+  "template": "app",
+  "versions": {
+    "AbpFramework": "10.0.1",
+    "AbpStudio": "2.1.4",
+    "TargetDotnetFramework": "net10.0"
+  },
+  "modules": {
+    "Polaris.WMS": {
+      "path": "Polaris.WMS.abpmdl"
+    }
+  },
+  "runProfiles": {
+    "Default": {
+      "path": "etc/abp-studio/run-profiles/Default.abprun.json"
+    }
+  },
+  "options": {
+    "httpRequests": {
+      "ignoredUrls": [
+      
+      ]
+    }
+  },
+  "creatingStudioConfiguration": {
+    "template": "app",
+    "createdAbpStudioVersion": "2.1.4",
+    "creationTool": "ABP Studio CLI",
+    "tiered": "false",
+    "runInstallLibs": "",
+    "useLocalReferences": "false",
+    "multiTenancy": "true",
+    "includeTests": "true",
+    "kubernetesConfiguration": "false",
+    "uiFramework": "mvc",
+    "mobileFramework": "none",
+    "distributedEventBus": "none",
+    "databaseProvider": "ef",
+    "runDbMigrator": "",
+    "databaseManagementSystem": "postgresql",
+    "separateTenantSchema": "false",
+    "createInitialMigration": "",
+    "theme": "leptonx-lite",
+    "themeStyle": "",
+    "themeMenuPlacement": "",
+    "mobileFramework": "none",
+    "publicWebsite": "false",
+    "socialLogin": "true",
+    "sampleCrudPage": "false",
+    "selectedLanguages": ["English", "Arabic", "Chinese (Simplified)", "Chinese (Traditional)", "Czech", "English (United Kingdom)", "Finnish", "French", "German (Germany)", "Hindi ", "Hungarian", "Icelandic", "Italian", "Portuguese (Brazil)", "Romanian (Romania)", "Russian", "Slovak", "Spanish", "Swedish", "Turkish", ],
+    "defaultLanguage": "English",
+    "createCommand": "abp new Polaris.WMS -t app --ui-framework mvc --database-provider ef --database-management-system postgresql --theme leptonx-lite --skip-migration  --skip-migrator  --without-cms-kit --dont-run-install-libs --dont-run-bundling -no-file-management"
+  }
+}

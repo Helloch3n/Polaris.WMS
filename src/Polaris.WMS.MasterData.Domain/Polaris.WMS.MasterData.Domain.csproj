@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Volo.Abp.Core" Version="10.0.1" />
+      <PackageReference Include="Volo.Abp.Ddd.Domain" Version="10.0.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Polaris.WMS.Domain.Shared\Polaris.WMS.Domain.Shared.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Integration\Identity\" />
+      <Folder Include="Integration\MasterData\" />
+    </ItemGroup>
+
+</Project>

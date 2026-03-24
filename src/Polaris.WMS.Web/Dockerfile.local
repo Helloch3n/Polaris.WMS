@@ -1,0 +1,18 @@
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS base
+USER $APP_UID
+EXPOSE 8080
+EXPOSE 8081
+
+COPY bin/Release/net10.0/publish/ app/
+WORKDIR /app
+
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+RUN dotnet dev-certs https -v -ep openiddict.pfx -p 15973313-55b2-4c6a-9939-4b7f730c1b6c
+RUN chmod 644 openiddict.pfx
+
+FROM base AS final
+WORKDIR /app
+COPY --from=build /src .
+
+ENTRYPOINT ["dotnet", "Polaris.WMS.Web.dll"]

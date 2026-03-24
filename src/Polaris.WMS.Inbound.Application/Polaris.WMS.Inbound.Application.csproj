@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Riok.Mapperly" Version="4.3.0" />
+      <PackageReference Include="Volo.Abp.Ddd.Application" Version="10.0.1" />
+      <PackageReference Include="Volo.Abp.Mapperly" Version="10.0.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Polaris.WMS.Application.Contracts\Polaris.WMS.Application.Contracts.csproj"/>
+      <ProjectReference Include="..\Polaris.WMS.Inbound.Application.Contracts\Polaris.WMS.Inbound.Application.Contracts.csproj" />
+      <ProjectReference Include="..\Polaris.WMS.Inbound.Domain\Polaris.WMS.Inbound.Domain.csproj" />
+      <ProjectReference Include="..\Polaris.WMS.InventoryManage.Application.Contracts\Polaris.WMS.InventoryManage.Application.Contracts.csproj" />
+      <ProjectReference Include="..\Polaris.WMS.MasterData.Application.Contracts\Polaris.WMS.MasterData.Application.Contracts.csproj" />
+    </ItemGroup>
+
+</Project>

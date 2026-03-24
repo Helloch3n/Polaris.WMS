@@ -1,0 +1,51 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\..\common.props" />
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Polaris.WMS</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Polaris.WMS.Domain\Polaris.WMS.Domain.csproj" />
+    <ProjectReference Include="..\Polaris.WMS.Application.Contracts\Polaris.WMS.Application.Contracts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.9" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="Hangfire.Core" Version="1.8.*" />
+    <PackageReference Include="Volo.Abp.PermissionManagement.Application" Version="10.0.1" />
+    <PackageReference Include="Volo.Abp.FeatureManagement.Application" Version="10.0.1" />
+    <PackageReference Include="Volo.Abp.SettingManagement.Application" Version="10.0.1" />
+    <PackageReference Include="Volo.Abp.Account.Application" Version="10.0.1" />
+    <PackageReference Include="Volo.Abp.Identity.Application" Version="10.0.1" />
+    <PackageReference Include="Volo.Abp.TenantManagement.Application" Version="10.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="MasterData\Locations\**" />
+    <Compile Remove="MasterData\Warehouses\**" />
+    <Compile Remove="MasterData\Zones\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Remove="MasterData\Locations\**" />
+    <EmbeddedResource Remove="MasterData\Warehouses\**" />
+    <EmbeddedResource Remove="MasterData\Zones\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="MasterData\Locations\**" />
+    <None Remove="MasterData\Warehouses\**" />
+    <None Remove="MasterData\Zones\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Mappers\" />
+  </ItemGroup>
+
+</Project>
+

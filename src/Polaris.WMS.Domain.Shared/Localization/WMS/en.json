@@ -1,0 +1,27 @@
+{
+  "Culture": "en",
+  "Texts": {
+    "AppName": "WMS",
+    "Menu:Home": "Home",
+    "Permission:WMS": "WMS",
+    "Permission:Inventory": "Inventory",
+    "Permission:InventoryOps": "Inventory Operations",
+    "Permission:InventoryViews": "Inventory Views",
+    "Permission:InventoryTransactions": "Inventory Transactions",
+    "Permission:InternalOps": "Internal Operations",
+    "Permission:TransferOrders": "Transfer Orders",
+    "Permission:Stocktake": "Stocktake",
+    "Permission:PalletMerge": "Pallet Merge",
+    "Permission:Create": "Create",
+    "Permission:Update": "Update",
+    "Permission:Delete": "Delete",
+    "Permission:Approve": "Approve",
+    "Permission:CreateDetails": "Create Details",
+    "Permission:DeleteDetails": "Delete Details",
+    "Permission:Inventory.View": "Inventory View",
+    "Permission:Inventory.Manage": "Inventory Manage",
+    "Permission:Inventory.Transactions": "Inventory Transactions",
+    "LongWelcomeMessage": "Welcome to the application. This is a startup project based on the ABP framework. For more information visit",
+    "Welcome": "Welcome"
+  }
+}
