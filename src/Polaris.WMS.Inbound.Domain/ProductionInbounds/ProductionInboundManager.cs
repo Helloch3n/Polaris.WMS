@@ -11,11 +11,18 @@ namespace Polaris.WMS.Inbound.Domain.ProductionInbounds
 {
     public class ProductionInboundManager(
         IRepository<ProductionInbound, Guid> productionInboundRepository,
-        IBillNumberGenerator billNumberGenerator,
-        IExternalReelProvider externalReelProvider,
-        IExternalInventoryAdapter externalInventoryAdapter)
+        IBillNumberGenerator billNumberGenerator
+        //IExternalReelProvider externalReelProvider,
+        //IExternalInventoryAdapter externalInventoryAdapter
+    )
         : DomainService
     {
+        private IExternalReelProvider ExternalReelProvider =>
+            LazyServiceProvider.LazyGetRequiredService<IExternalReelProvider>();
+
+        private IExternalInventoryAdapter ExternalInventoryAdapter =>
+            LazyServiceProvider.LazyGetRequiredService<IExternalInventoryAdapter>();
+
         /// <summary>
         /// 创建生产入库单聚合（仅构建实体，不持久化）。
         /// </summary>
@@ -83,7 +90,7 @@ namespace Polaris.WMS.Inbound.Domain.ProductionInbounds
 
             // 2. 获取盘具实体纠正盘具库位
 
-            var reel = await externalReelProvider.GetReelAsync(reelId);
+            var reel = await ExternalReelProvider.GetReelAsync(reelId);
 
             if (reel == null)
             {
@@ -93,7 +100,7 @@ namespace Polaris.WMS.Inbound.Domain.ProductionInbounds
             if (reel.CurrentLocationId != actualLocationId)
             {
                 // 调用盘具领域服务，执行一次隐式调拨/移库
-                await externalReelProvider.MoveReelAsync(
+                await ExternalReelProvider.MoveReelAsync(
                     reel.Id,
                     actualLocationId,
                     order.OrderNo
@@ -133,7 +140,7 @@ namespace Polaris.WMS.Inbound.Domain.ProductionInbounds
                     LayerIndex = detail.LayerIndex,
                     Status = InventoryStatus.Quarantine // 隔离状态
                 };
-                await externalInventoryAdapter.ReceiveProductionAsync(receiveInfo);
+                await ExternalInventoryAdapter.ReceiveProductionAsync(receiveInfo);
             }
 
             // 5. 持久化最新状态

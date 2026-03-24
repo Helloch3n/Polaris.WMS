@@ -42,7 +42,9 @@ namespace Polaris.WMS.EntityFrameworkCore;
     typeof(AbpOpenIddictEntityFrameworkCoreModule),
     typeof(AbpTenantManagementEntityFrameworkCoreModule),
     typeof(BlobStoringDatabaseEntityFrameworkCoreModule),
-    typeof(AbpCachingStackExchangeRedisModule)
+    typeof(AbpCachingStackExchangeRedisModule),
+    typeof(PolarisWmsMasterDataEntityFrameworkCoreModule),
+    typeof(PolarisWmsInventoryEntityFrameworkCoreModule)
 )]
 public class WMSEntityFrameworkCoreModule : AbpModule
 {
@@ -66,25 +68,7 @@ public class WMSEntityFrameworkCoreModule : AbpModule
             options.ReplaceDbContext<IInventoryDbContext>();
             options.ReplaceDbContext<IInboundDbContext>();
             options.ReplaceDbContext<IOutBoundDbContext>();
-
-            // 如果模块中有自定义仓储(如 IInventoryRepository)，使用 ABP 的标准语法注册给 WMSDbContext
-            // 主数据模块的自定义仓储
-            //options.AddRepository<Zone, ZoneRepository>();
-            //options.AddRepository<Location, LocationRepository>();
-
-            // 库存模块的自定义仓储
-            //options.AddRepository<Inventory, InventoryRepository>();
-            //options.AddRepository<Reel, ReelRepository>();
         });
-
-        // // 显式绑定自定义仓储接口，避免模块化改造后接口未被自动暴露
-        // // 1. 主数据模块 (MasterData) 的自定义仓储
-        context.Services.AddTransient<IZoneRepository, ZoneRepository>();
-        context.Services.AddTransient<ILocationRepository, LocationRepository>();
-        //
-        // // 2. 库存模块 (InventoryManage) 的自定义仓储
-        context.Services.AddTransient<IInventoryRepository, InventoryRepository>();
-        // //context.Services.AddTransient<IReelRepository, ReelRepository>();
 
         if (AbpStudioAnalyzeHelper.IsInAnalyzeMode)
         {

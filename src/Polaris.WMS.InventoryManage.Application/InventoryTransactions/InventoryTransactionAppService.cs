@@ -75,7 +75,7 @@ namespace Polaris.WMS.InventoryManage.Application.InventoryTransactions
             // 🌟 6. 收集所需的跨模块/跨聚合 ID 集合 (使用 HashSet 去重，极致榨干性能)
             var reelIds = items.Select(x => x.ReelId).Distinct().ToList();
             var productIds = items.Select(x => x.ProductId).Distinct().ToList();
-            
+
             // 合并 FromLocationId 和 ToLocationId
             var locationIds = items.Where(x => x.FromLocationId.HasValue).Select(x => x.FromLocationId!.Value)
                 .Concat(items.Where(x => x.ToLocationId.HasValue).Select(x => x.ToLocationId!.Value))
@@ -88,18 +88,16 @@ namespace Polaris.WMS.InventoryManage.Application.InventoryTransactions
 
             // 🌟 7. 并行发起外部查询 (Task.WhenAll 是微服务组装的神器)
             var reelQueryForMap = await reelRepository.GetQueryableAsync();
-            var reelsTask = AsyncExecuter.ToListAsync(reelQueryForMap.Where(x => reelIds.Contains(x.Id)));
-            var productsTask = productIntegrationService.GetListByIdsAsync(productIds);
-            var locationsTask = locationIntegrationService.GetListByIdsAsync(locationIds);
-            var warehousesTask = warehouseIntegrationService.GetListByIdsAsync(warehouseIds);
-
-            await Task.WhenAll(reelsTask, productsTask, locationsTask, warehousesTask);
+            var reels = await AsyncExecuter.ToListAsync(reelQueryForMap.Where(x => reelIds.Contains(x.Id)));
+            var products = await productIntegrationService.GetListByIdsAsync(productIds);
+            var locations = await locationIntegrationService.GetListByIdsAsync(locationIds);
+            var warehouses = await warehouseIntegrationService.GetListByIdsAsync(warehouseIds);
 
             // 🌟 8. 转换为 O(1) 复杂度的哈希字典
-            var reelMap = reelsTask.Result.ToDictionary(x => x.Id, x => x);
-            var productMap = productsTask.Result.ToDictionary(x => x.Id, x => x);
-            var locationMap = locationsTask.Result.ToDictionary(x => x.Id, x => x);
-            var warehouseMap = warehousesTask.Result.ToDictionary(x => x.Id, x => x);
+            var reelMap = reels.ToDictionary(x => x.Id, x => x);
+            var productMap = products.ToDictionary(x => x.Id, x => x);
+            var locationMap = locations.ToDictionary(x => x.Id, x => x);
+            var warehouseMap = warehouses.ToDictionary(x => x.Id, x => x);
 
             // 🌟 9. 内存极速拼装
             foreach (var dto in dtos)
@@ -121,6 +119,7 @@ namespace Polaris.WMS.InventoryManage.Application.InventoryTransactions
                 {
                     dto.FromLocationCode = fromLoc.Code;
                 }
+
                 if (dto.ToLocationId.HasValue && locationMap.TryGetValue(dto.ToLocationId.Value, out var toLoc))
                 {
                     dto.ToLocationCode = toLoc.Code;
@@ -131,6 +130,7 @@ namespace Polaris.WMS.InventoryManage.Application.InventoryTransactions
                 {
                     dto.FromWarehouseCode = fromWh.Code;
                 }
+
                 if (dto.ToWarehouseId.HasValue && warehouseMap.TryGetValue(dto.ToWarehouseId.Value, out var toWh))
                 {
                     dto.ToWarehouseCode = toWh.Code;

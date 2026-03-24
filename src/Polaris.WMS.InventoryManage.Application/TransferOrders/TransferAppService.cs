@@ -57,18 +57,16 @@ namespace Polaris.WMS.InventoryManage.Application.TransferOrders
 
             // 2. 本地查询 Reel，跨模块并行查询 Product 和 Location
             var reelQuery = await reelRepository.GetQueryableAsync();
-            var reelsTask = AsyncExecuter.ToListAsync(reelQuery.Where(x => reelIds.Contains(x.Id)));
-            var productsTask = productIntegrationService.GetListByIdsAsync(productIds);
-            var locationsTask = locationIntegrationService.GetListByIdsAsync(locationIds);
+            var reels = await AsyncExecuter.ToListAsync(reelQuery.Where(x => reelIds.Contains(x.Id)));
+            var products = await productIntegrationService.GetListByIdsAsync(productIds);
+            var locations = await locationIntegrationService.GetListByIdsAsync(locationIds);
 
-            await Task.WhenAll(reelsTask, productsTask, locationsTask);
-
-            var reelMap = reelsTask.Result.ToDictionary(x => x.Id, x => x.ReelNo);
-            var productMap = productsTask.Result.ToDictionary(x => x.Id, x => x);
-            var locationMap = locationsTask.Result.ToDictionary(x => x.Id, x => x);
+            var reelMap = reels.ToDictionary(x => x.Id, x => x.ReelNo);
+            var productMap = products.ToDictionary(x => x.Id, x => x);
+            var locationMap = locations.ToDictionary(x => x.Id, x => x);
 
             // 3. 根据库位结果，收集并跨模块查询 Warehouse
-            var warehouseIds = locationsTask.Result.Select(x => x.WarehouseId).Distinct().ToList();
+            var warehouseIds = locations.Select(x => x.WarehouseId).Distinct().ToList();
             var warehouses = await warehouseIntegrationService.GetListByIdsAsync(warehouseIds);
             var warehouseMap = warehouses.ToDictionary(x => x.Id, x => x.Code);
 
@@ -124,7 +122,7 @@ namespace Polaris.WMS.InventoryManage.Application.TransferOrders
 
 
         [Authorize(WMSPermissions.InternalOps.TransferOrders.Default)]
-       public async Task<PagedResultDto<TransferListDto>> GetListAsync(TransferSearchDto input)
+        public async Task<PagedResultDto<TransferListDto>> GetListAsync(TransferSearchDto input)
         {
             var query = await transferOrderRepository.GetQueryableAsync();
 
@@ -135,7 +133,8 @@ namespace Polaris.WMS.InventoryManage.Application.TransferOrders
                 .WhereIf(input.EndTime.HasValue, x => x.CreationTime <= input.EndTime!.Value);
 
             var totalCount = await AsyncExecuter.CountAsync(query);
-            var items = await AsyncExecuter.ToListAsync(query.OrderByDescending(x => x.CreationTime).PageBy(input.SkipCount, input.MaxResultCount));
+            var items = await AsyncExecuter.ToListAsync(query.OrderByDescending(x => x.CreationTime)
+                .PageBy(input.SkipCount, input.MaxResultCount));
 
             if (!items.Any()) return new PagedResultDto<TransferListDto>(totalCount, new List<TransferListDto>());
 
