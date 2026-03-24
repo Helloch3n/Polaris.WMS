@@ -17,6 +17,7 @@ using Polaris.WMS.Users;
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using Polaris.WMS.Inbound.Domain.ProductionInbounds;
 using Polaris.WMS.Inbound.EntityFrameworkCore;
 using Polaris.WMS.InventoryManage.Domain.inventories;
 using Polaris.WMS.InventoryManage.Domain.Reels;
@@ -109,17 +110,31 @@ public class WMSDbContext :
     public DbSet<Zone> Zones { get; set; }
     public DbSet<Location> Locations { get; set; }
     public DbSet<Product> Products { get; set; }
+    public DbSet<Supplier> Suppliers { get; set; }
     #endregion
 
     #region 库存管理模块 (InventoryManage)
     public DbSet<TransferOrder> TransferOrders { get; set; }
     public DbSet<Inventory> Inventories { get; set; }
     public DbSet<Reel> Reels { get; set; }
+    public DbSet<InventoryTransaction> InventoryTransactions { get; set; }
     #endregion
 
     #region 任务模块 (TaskRouting)
     public DbSet<MoveTask> MoveTasks { get; set; }
     public DbSet<RoutingStrategy> RoutingStrategy { get; set; }
+    #endregion
+    
+    #region 入库模块 (Inbound)
+    public DbSet<ProductionInbound> ProductionInbounds { get; set; }
+    public DbSet<ProductionInboundDetail> ProductionInboundDetails { get; set; }
+    // ... 其他入库表
+    #endregion
+    
+    #region 出库模块 (Outbound)
+    // 请根据你的实体补充：例如
+    // public DbSet<OutboundOrder> OutboundOrders { get; set; } 
+    // ...
     #endregion
 
     protected override void OnModelCreating(ModelBuilder builder)

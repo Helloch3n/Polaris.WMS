@@ -171,7 +171,8 @@ public class WMSWebModule : AbpModule
         ConfigureHealthChecks(context);
         ConfigureAuthentication(context);
         ConfigureVirtualFileSystem(hostingEnvironment);
-        ConfigureAutoApiControllers();
+        // 删除这行调用！上面已经统中配置过 ConventionalControllers！
+        //ConfigureAutoApiControllers();
         ConfigureSwaggerServices(context.Services);
         ConfigureCors(context, configuration);
         Configure<PermissionManagementOptions>(options => { options.IsDynamicPermissionStoreEnabled = true; });

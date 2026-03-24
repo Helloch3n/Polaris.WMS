@@ -61,15 +61,18 @@ public class WMSEntityFrameworkCoreModule : AbpModule
             options.ReplaceDbContext<IInventoryDbContext>();
             options.ReplaceDbContext<IInboundDbContext>();
             options.ReplaceDbContext<IOutBoundDbContext>();
-        });
 
-        context.Services.AddAbpDbContext<InventoryDbContext>(options =>
-        {
+            // 如果模块中有自定义仓储(如 IInventoryRepository)，使用 ABP 的标准语法注册给 WMSDbContext
             options.AddRepository<Inventory, InventoryRepository>();
         });
 
+        // context.Services.AddAbpDbContext<InventoryDbContext>(options =>
+        // {
+        //     options.AddRepository<Inventory, InventoryRepository>();
+        // });
+
         // 显式绑定自定义仓储接口，避免模块化改造后接口未被自动暴露
-        context.Services.AddTransient<IInventoryRepository, InventoryRepository>();
+        // context.Services.AddTransient<IInventoryRepository, InventoryRepository>();
 
         if (AbpStudioAnalyzeHelper.IsInAnalyzeMode)
         {
