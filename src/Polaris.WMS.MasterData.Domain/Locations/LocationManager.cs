@@ -20,8 +20,8 @@ namespace Polaris.WMS.MasterData.Domain.Locations
         )
         : DomainService
     {
-        private IReelAllocationAdapter ReelAllocationAdapter => LazyServiceProvider.LazyGetRequiredService<IReelAllocationAdapter>();
-        private IInventoryAllocationAdapter InventoryAllocationAdapter => LazyServiceProvider.LazyGetRequiredService<IInventoryAllocationAdapter>();
+        private IExternalReelProvider ExternalReelProvider => LazyServiceProvider.LazyGetRequiredService<IExternalReelProvider>();
+        private IExternalInventoryProvider ExternalInventoryProvider => LazyServiceProvider.LazyGetRequiredService<IExternalInventoryProvider>();
         /// <summary>
         /// 根据库位装载情况刷新库位状态。
         /// </summary>
@@ -30,14 +30,14 @@ namespace Polaris.WMS.MasterData.Domain.Locations
         {
             var location = await locationRepository.GetAsync(locationId);
 
-            var reels = await ReelAllocationAdapter.GetReelInfosByLocationIdAsync(locationId);
+            var reels = await ExternalReelProvider.GetReelInfosByLocationIdAsync(locationId);
             var reelCount = reels.Count;
 
             var reelIds = reels.Select(x => x.Id).ToList();
             var inventoryCount = 0;
             if (reelIds.Count > 0)
             {
-                var inventorys = await InventoryAllocationAdapter.GetInventoryByReels(reelIds);
+                var inventorys = await ExternalInventoryProvider.GetInventoryByReels(reelIds);
                 inventoryCount = inventorys.Count;
             }
 

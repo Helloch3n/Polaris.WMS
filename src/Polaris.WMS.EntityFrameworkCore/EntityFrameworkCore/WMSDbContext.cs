@@ -5,7 +5,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polaris.WMS.DataSync;
 using Polaris.WMS.Inbound;
-using Polaris.WMS.Inventorys;
 using Polaris.WMS.Isolation;
 using Polaris.WMS.MasterData;
 using Polaris.WMS.MasterData.Reels;

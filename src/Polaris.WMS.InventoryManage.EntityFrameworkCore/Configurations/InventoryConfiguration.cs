@@ -1,7 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Polaris.WMS.Inventories.Invnentory;
+using Polaris.WMS.Inventories.Ivnentory;
 using Polaris.WMS.InventoryManage.Domain.inventories;
-using Polaris.WMS.Inventorys;
 using Volo.Abp.EntityFrameworkCore.Modeling;
 
 namespace Polaris.WMS.InventoryManage.EntityFrameworkCore.Configurations

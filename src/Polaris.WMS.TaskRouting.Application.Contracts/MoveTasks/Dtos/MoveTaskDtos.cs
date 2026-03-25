@@ -7,7 +7,9 @@ public class CreateMoveTaskDto
 {
     [Required] public Guid ContainerId { get; set; }
 
-    public Guid? FromLocationId { get; set; }
+    public string ContainerCode { get; set; }
+
+    public Guid FromLocationId { get; set; }
 
     [Required] public Guid TargetLocationId { get; set; }
 

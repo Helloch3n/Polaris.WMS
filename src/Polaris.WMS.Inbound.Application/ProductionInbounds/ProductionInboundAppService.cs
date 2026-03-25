@@ -3,7 +3,7 @@ using Polaris.WMS.Inbound.Domain.ProductionInbounds;
 using Polaris.WMS.Inound.Application.Contracts.ProductionInbounds;
 using Polaris.WMS.Inound.Application.Contracts.ProductionInbounds.Dtos;
 using Polaris.WMS.Integration.Departments;
-using Polaris.WMS.Inventorys.Events;
+using Polaris.WMS.Inventories.Invnentory.Events;
 using Polaris.WMS.MasterData.Application.Contracts.Integration.Products;
 using Polaris.WMS.MasterData.Application.Contracts.Integration.Warehouses;
 using Polaris.WMS.ProductionInbounds;
@@ -11,6 +11,7 @@ using Volo.Abp;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Domain.Repositories;
+using Volo.Abp.EventBus.Distributed;
 using Volo.Abp.EventBus.Local;
 using Volo.Abp.Identity.Settings;
 
@@ -27,7 +28,9 @@ namespace Polaris.WMS.Inbound.Application.ProductionInbounds
         IRepository<ProductionInbound, Guid> productionInboundRepository,
         IWarehouseIntegrationService warehouseIntegrationService,
         IProductIntegrationService productIntegrationService,
-        LocalEventBus localEventBus)
+        ILocalEventBus localEventBus,
+        IDistributedEventBus distributedEventBus
+    )
         : ApplicationService, IProductionInboundAppService
     {
         /// <summary>
@@ -53,13 +56,6 @@ namespace Polaris.WMS.Inbound.Application.ProductionInbounds
                 var reelId = group.Key.ReelId;
                 var actualLocationId = group.Key.ActualLocationId;
                 await inboundManager.ReceiveReelAsync(orderId, reelId, actualLocationId);
-
-                //发布待检入库事件
-                await localEventBus.PublishAsync(new HoldInventoryCreatedEvent
-                {
-                    ContainerId = reelId,
-                    CurrentLocationId = actualLocationId // 比如：收线机台的库位ID
-                });
             }
         }
 

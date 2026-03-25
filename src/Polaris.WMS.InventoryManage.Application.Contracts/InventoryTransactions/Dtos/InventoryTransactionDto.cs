@@ -1,4 +1,6 @@
-﻿using Polaris.WMS.Inventorys;
+﻿using Polaris.WMS.Inventories.Invnentory;
+using Polaris.WMS.Inventories.Ivnentory;
+using Polaris.WMS.Inventories.Transaction;
 
 namespace Polaris.WMS.InventoryManage.Application.Contracts.InventoryTransactions.Dtos
 {

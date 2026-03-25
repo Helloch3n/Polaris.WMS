@@ -1,7 +1,8 @@
 ﻿using Polaris.WMS.BillNumbers;
 using Polaris.WMS.Inbound.Domain.Integration.Inventories;
 using Polaris.WMS.Inbound.Domain.Integration.Reels;
-using Polaris.WMS.Inventorys;
+using Polaris.WMS.Inventories.Invnentory;
+using Polaris.WMS.Inventories.Ivnentory;
 using Polaris.WMS.ProductionInbounds;
 using Volo.Abp;
 using Volo.Abp.Domain.Repositories;
@@ -20,8 +21,8 @@ namespace Polaris.WMS.Inbound.Domain.ProductionInbounds
         private IExternalReelProvider ExternalReelProvider =>
             LazyServiceProvider.LazyGetRequiredService<IExternalReelProvider>();
 
-        private IExternalInventoryAdapter ExternalInventoryAdapter =>
-            LazyServiceProvider.LazyGetRequiredService<IExternalInventoryAdapter>();
+        private IExternalInventoryProvider ExternalInventoryProvider =>
+            LazyServiceProvider.LazyGetRequiredService<IExternalInventoryProvider>();
 
         /// <summary>
         /// 创建生产入库单聚合（仅构建实体，不持久化）。
@@ -118,31 +119,33 @@ namespace Polaris.WMS.Inbound.Domain.ProductionInbounds
             }
 
             // 4. 标记明细状态并记录实际库位
+            var receiveInfo = new ExternalProductionReceiveInfo
+            {
+                OrderNo = order.OrderNo,
+                ReelId = reelId,
+                ActualLocationId = actualLocationId,
+                Items = pendingDetails.Select(x => new ExternalProductionReceiveInfoItem
+                {
+                    ProductId = x.ProductId,
+                    Qty = x.Qty,
+                    Unit = x.Unit,
+                    BatchNo = x.BatchNo,
+                    RelatedOrderNo = x.RelatedOrderNo,
+                    RelatedOrderNoLineNo = x.RelatedOrderNoLineNo,
+                    SN = x.SN,
+                    CraftVersion = x.CraftVersion,
+                    LayerIndex = x.LayerIndex,
+                    Status = InventoryStatus.Hold // 默认先入库到暂存区，状态为 Hold，后续可以根据业务需求调整
+                }).ToList(),
+            };
             foreach (var detail in pendingDetails)
             {
                 // 标记明细为已完成（已入库）
                 order.MarkDetailAsCompleted(detail.Id);
-                // 调用库存领域服务，创建实物库存
-                var receiveInfo = new ExternalProductionReceiveInfo
-                {
-                    OrderNo = order.OrderNo,
-                    ReelId = detail.ReelId,
-                    ProductId = detail.ProductId,
-                    Qty = detail.Qty,
-                    Weight = detail.Weight,
-                    BatchNo = detail.BatchNo,
-                    RelatedOrderNo = detail.RelatedOrderNo,
-                    RelatedOrderNoLineNo = detail.RelatedOrderNoLineNo,
-                    ActualLocationId = detail.ActualLocationId,
-                    SN = detail.SN,
-                    Unit = detail.Unit,
-                    CraftVersion = detail.CraftVersion,
-                    LayerIndex = detail.LayerIndex,
-                    Status = InventoryStatus.Quarantine // 隔离状态
-                };
-                await ExternalInventoryAdapter.ReceiveProductionAsync(receiveInfo);
             }
 
+            // 调用库存领域服务，创建实物库存
+            await ExternalInventoryProvider.ReceiveProductionAsync(receiveInfo);
             // 5. 持久化最新状态
             await productionInboundRepository.UpdateAsync(order);
         }

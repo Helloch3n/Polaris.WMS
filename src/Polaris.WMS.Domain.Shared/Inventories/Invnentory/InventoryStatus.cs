@@ -1,4 +1,4 @@
-﻿namespace Polaris.WMS.Inventorys
+﻿namespace Polaris.WMS.Inventories.Invnentory
 {
     /// <summary>
     /// 库存状态。
@@ -16,13 +16,18 @@
         Frozen = 1,
 
         /// <summary>
+        /// 待检
+        /// </summary>
+        Hold = 2,
+
+        /// <summary>
         /// 待检。
         /// </summary>
-        Quarantine = 2,
+        Quarantine = 3,
 
         /// <summary>
         /// 报废。
         /// </summary>
-        Scrap = 3
+        Scrap = 4
     }
 }

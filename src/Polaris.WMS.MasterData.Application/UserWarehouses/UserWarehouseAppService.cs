@@ -15,7 +15,7 @@ namespace Polaris.WMS.MasterData.Application.UserWarehouses
     public class UserWarehouseAppService(
         IRepository<UserWarehouse, Guid> userWarehouseRepository,
         IRepository<Warehouse, Guid> warehouseRepository,
-        IUserAllocationAdapter locationAdapter)
+        IExternalUserProvider locationProvider)
         : ApplicationService, IUserWarehouseAppService
     {
         /// <summary>
@@ -77,7 +77,7 @@ namespace Polaris.WMS.MasterData.Application.UserWarehouses
 
             if (!userIds.Any()) return new List<WarehouseUserDto>();
 
-            var users = await locationAdapter.GetUserInfoAsync(userIds);
+            var users = await locationProvider.GetUserInfoAsync(userIds);
             //var userQuery = await userRepository.GetQueryableAsync();
             //var users = await AsyncExecuter.ToListAsync(userQuery.Where(u => userIds.Contains(u.Id)));
 

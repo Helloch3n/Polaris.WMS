@@ -15,34 +15,39 @@ public class MoveTask : FullAuditedAggregateRoot<Guid>
     /// <summary> 绑定的物理载体</summary>
     public Guid ContainerId { get; private set; }
 
-    public Guid? SourceLocationId { get; private set; }
+    public string ContainerCode { get; private set; }
+
+    public Guid SourceLocationId { get; private set; }
 
     /// <summary> 计划目标库位 (系统推荐去的地方，比如 QC大区) </summary>
     public Guid TargetLocationId { get; private set; }
 
     /// <summary> 实际落位库位 (完成时由工人拿 PDA 真实扫出来的条码) </summary>
-    public Guid? ActualLocationId { get; private set; }
+    public Guid ActualLocationId { get; private set; }
 
     protected MoveTask()
     {
     } // 供 EF Core 序列化使用
 
-    internal MoveTask(Guid id, string taskNo, MoveTaskType taskType, Guid containerId, Guid? sourceLocationId,
+    internal MoveTask(Guid id, string taskNo, MoveTaskType taskType, Guid containerId, string containerCode,
+        Guid sourceLocationId,
         Guid targetLocationId)
         : base(id)
     {
         TaskNo = taskNo;
         TaskType = taskType;
         ContainerId = containerId;
+        containerCode = containerCode;
         SourceLocationId = sourceLocationId;
         TargetLocationId = targetLocationId;
         Status = MoveTaskStatus.Pending; // 初始状态必为待执行
     }
 
-    public static MoveTask Create(Guid id, string taskNo, MoveTaskType taskType, Guid containerId, Guid? sourceLocationId,
+    public static MoveTask Create(Guid id, string taskNo, MoveTaskType taskType, Guid containerId, string containerCode,
+        Guid sourceLocationId,
         Guid targetLocationId)
     {
-        return new MoveTask(id, taskNo, taskType, containerId, sourceLocationId, targetLocationId);
+        return new MoveTask(id, taskNo, taskType, containerId, containerCode, sourceLocationId, targetLocationId);
     }
 
     // 认领任务 (可选步骤，防止两个叉车工抢同一个盘子)

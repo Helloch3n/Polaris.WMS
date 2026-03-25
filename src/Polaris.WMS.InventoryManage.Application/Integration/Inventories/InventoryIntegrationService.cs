@@ -1,5 +1,6 @@
 ﻿using Polaris.WMS.InventoryManage.Application.Contracts.Integration.inventories;
 using Polaris.WMS.InventoryManage.Domain.inventories;
+using Polaris.WMS.InventoryManage.Domain.inventories.Args;
 using Volo.Abp;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Domain.Repositories;
@@ -34,23 +35,28 @@ public class InventoryIntegrationService(
         }).ToList();
     }
 
-    public async Task ReceiveProductionAsync(ProductionReceiveIntegrationDto input)
+    public async Task ReceiveProductionAsync(ProductionReceiveByReelInput input)
     {
-        await inventoryManager.ProductionReceiveAsync(
-            input.OrderNo,
-            input.ReelId,
-            input.ProductId,
-            input.Qty,
-            input.Weight,
-            input.BatchNo,
-            input.RelatedOrderNo,
-            input.RelatedOrderNoLineNo,
-            input.ActualLocationId,
-            input.SN,
-            input.Unit,
-            input.CraftVersion,
-            input.LayerIndex,
-            input.Status
-        );
+        var domainArgs = new ReceiveReelArgs
+        {
+            OrderNo = input.OrderNo,
+            ReelId = input.ReelId,
+            LocationId = input.LocationId,
+            Items = input.Items.Select(x => new ReceiveReelItemArgs
+            {
+                ProductId = x.ProductId,
+                Qty = x.Qty,
+                Weight = x.Weight,
+                BatchNo = x.BatchNo,
+                RelatedOrderNo = x.RelatedOrderNo,
+                RelatedOrderLineNo = x.RelatedOrderLineNo,
+                SN = x.SN,
+                Unit = x.Unit,
+                CraftVersion = x.CraftVersion,
+                LayerIndex = x.LayerIndex,
+                Status = x.Status
+            }).ToList()
+        };
+        await inventoryManager.ReceiveByReelAsync(domainArgs);
     }
 }

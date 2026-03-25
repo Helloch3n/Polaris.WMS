@@ -1,4 +1,4 @@
-namespace Polaris.WMS.Inventorys
+namespace Polaris.WMS.Inventories.Ivnentory
 {
     /// <summary>
     /// 库存类型。

@@ -15,4 +15,8 @@ namespace Polaris.WMS.InventoryManage.Application;
 )]
 public class PolarisWmsInventoryApplicationModule : AbpModule
 {
+    public override void ConfigureServices(ServiceConfigurationContext context)
+    {
+        
+    }
 }

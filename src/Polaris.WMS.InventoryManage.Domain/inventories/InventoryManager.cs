@@ -1,6 +1,8 @@
-﻿using Polaris.WMS.InventoryManage.Domain.Integration.Locations;
+﻿using Polaris.WMS.Inventories.Invnentory;
+using Polaris.WMS.Inventories.Transaction;
+using Polaris.WMS.InventoryManage.Domain.Integration.Locations;
+using Polaris.WMS.InventoryManage.Domain.inventories.Args;
 using Polaris.WMS.InventoryManage.Domain.Reels;
-using Polaris.WMS.Inventorys;
 using Volo.Abp;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Domain.Services;
@@ -14,93 +16,83 @@ namespace Polaris.WMS.InventoryManage.Domain.inventories
         IRepository<InventoryTransaction, Guid> transactionRepository,
         InventoryTransactionManager inventoryTransactionManager
         //IExternalLocationAdapter externalLocationAdapter
-        )
+    )
         : DomainService
     {
-        private IExternalLocationAdapter ExternalLocationAdapter => LazyServiceProvider.LazyGetRequiredService<IExternalLocationAdapter>();
-        public async Task<InventoryManage.Domain.inventories.Inventory> ProductionReceiveAsync(
-            string orderNo,
-            Guid reelId,
-            Guid productId,
-            decimal quantity,
-            decimal weight,
-            string batchNo,
-            string? relatedOrderNo,
-            string? relatedOrderLineNo,
-            Guid locationId,
-            string sn,
-            string unit,
-            string? craftVersion = null,
-            int layerIndex = 0,
-            InventoryStatus status = InventoryStatus.Good)
+        private IExternalLocationProvider ExternalLocationProvider =>
+            LazyServiceProvider.LazyGetRequiredService<IExternalLocationProvider>();
+
+        public async Task ReceiveByReelAsync(ReceiveReelArgs args)
         {
-            // SN全局唯一校验（如果SN不为空的话）
-            var snExists = await inventoryRepository.IsSnExistsAsync(sn);
-            if (snExists)
-            {
-                throw new BusinessException("WMS:DuplicateSN")
-                    .WithData("sn", sn);
-            }
-
-            var reel = await reelRepository.GetAsync(reelId);
-
-            var inventory = new InventoryManage.Domain.inventories.Inventory(
-                GuidGenerator.Create(),
-                reelId,
-                productId,
-                quantity,
-                unit,
-                weight,
-                batchNo,
-                relatedOrderNo,
-                relatedOrderLineNo,
-                Clock.Now,
-                layerIndex,
-                sn,
-                craftVersion,
-                status);
-
+            //获取盘具信息
+            var reel = await reelRepository.GetAsync(args.ReelId);
             //修改盘具为已占用
             reel.SetOccupied();
             //刷新库位状态
-            //await locationManager.RefreshStatusByLoadAsync(locationId);
-            await ExternalLocationAdapter.RefreshStatusByLoadAsync(locationId);
-
-            await inventoryRepository.InsertAsync(inventory);
+            await ExternalLocationProvider.RefreshStatusByLoadAsync(args.LocationId);
+            //更新reel
             await reelRepository.UpdateAsync(reel);
 
-            //生成库存流水
+            //循环 args.Items 创建 Inventory 实体
+            foreach (var item in args.Items)
+            {
+                //校验SN唯一性
+                var snExists = await inventoryRepository.IsSnExistsAsync(item.SN);
+                if (snExists)
+                {
+                    throw new BusinessException("WMS:DuplicateSN")
+                        .WithData("sn", item.SN);
+                }
 
-            Guid? warehouseId = null;
-            // var location = await locationRepository.GetAsync(locationId);
-            var location = await ExternalLocationAdapter.GetLocationAsync(locationId);
-            warehouseId = location.WarehouseId;
+                //插入inventory
+                var inventory = Inventory.CreateHoldInventory(GuidGenerator.Create(),
+                    args.ReelId,
+                    item.ProductId,
+                    item.Qty,
+                    item.Unit,
+                    item.Weight,
+                    item.BatchNo,
+                    item.RelatedOrderNo,
+                    item.RelatedOrderLineNo,
+                    Clock.Now,
+                    item.LayerIndex,
+                    item.SN,
+                    item.CraftVersion,
+                    item.Status);
 
-            var transaction = await inventoryTransactionManager.CreateAsync(
-                id: GuidGenerator.Create(),
-                type: TransactionType.Receipt,
-                billNo: string.IsNullOrWhiteSpace(orderNo)
-                    ? $"INV-ADD-{Clock.Now:yyyyMMddHHmmssfff}"
-                    : orderNo,
-                inventoryId: inventory.Id,
-                reelId: inventory.ReelId,
-                productId: inventory.ProductId,
-                quantity: inventory.Quantity,
-                quantityAfter: inventory.Quantity,
-                fromLocationId: null,
-                toLocationId: locationId,
-                fromWarehouseId: null,
-                toWarehouseId: warehouseId,
-                sn: inventory.SN,
-                batchNo: inventory.BatchNo,
-                craftVersion: inventory.CraftVersion,
-                status: inventory.Status,
-                remark: "库存增加"
-            );
+                await inventoryRepository.InsertAsync(inventory);
 
-            await transactionRepository.InsertAsync(transaction);
+                //生成库存流水
+                Guid? warehouseId = null;
+                var location = await ExternalLocationProvider.GetLocationAsync(args.LocationId);
+                warehouseId = location.WarehouseId;
 
-            return inventory;
+                var input = new CreateInventoryTranscationArgs()
+                {
+                    Id = GuidGenerator.Create(),
+                    Type = TransactionType.Receipt,
+                    BillNo = string.IsNullOrWhiteSpace(args.OrderNo)
+                        ? $"INV-ADD-{Clock.Now:yyyyMMddHHmmssfff}"
+                        : args.OrderNo,
+                    InventoryId = inventory.Id,
+                    ReelId = inventory.ReelId,
+                    ProductId = inventory.ProductId,
+                    Quantity = inventory.Quantity,
+                    QuantityAfter = inventory.Quantity,
+                    FromLocationId = null,
+                    ToLocationId = args.LocationId,
+                    FromWarehouseId = null,
+                    ToWarehouseId = warehouseId,
+                    SN = inventory.SN,
+                    BatchNo = inventory.BatchNo,
+                    CraftVersion = inventory.CraftVersion,
+                    Status = inventory.Status,
+                    Remark = "入库"
+                };
+
+                var transaction = await inventoryTransactionManager.CreateAsync(input);
+                await transactionRepository.InsertAsync(transaction);
+            }
         }
 
         /// <summary>
@@ -134,32 +126,34 @@ namespace Polaris.WMS.InventoryManage.Domain.inventories
             if (locationId.HasValue)
             {
                 //var location = await locationRepository.GetAsync(locationId.Value);
-                var location = await ExternalLocationAdapter.GetLocationAsync(locationId.Value);
+                var location = await ExternalLocationProvider.GetLocationAsync(locationId.Value);
                 warehouseId = location.WarehouseId;
             }
 
-            var transaction = await inventoryTransactionManager.CreateAsync(
-                id: GuidGenerator.Create(),
-                type: transType,
-                billNo: string.IsNullOrWhiteSpace(businessOrderNo)
+            var createArgs = new CreateInventoryTranscationArgs()
+            {
+                Id = GuidGenerator.Create(),
+                Type = transType,
+                BillNo = string.IsNullOrWhiteSpace(businessOrderNo)
                     ? $"INV-ADD-{Clock.Now:yyyyMMddHHmmssfff}"
                     : businessOrderNo,
-                inventoryId: inventory.Id,
-                reelId: inventory.ReelId,
-                productId: inventory.ProductId,
-                quantity: qty,
-                quantityAfter: inventory.Quantity,
-                fromLocationId: locationId,
-                toLocationId: locationId,
-                fromWarehouseId: warehouseId,
-                toWarehouseId: warehouseId,
-                sn: inventory.SN,
-                batchNo: inventory.BatchNo,
-                craftVersion: inventory.CraftVersion,
-                status: inventory.Status,
-                remark: "库存增加"
-            );
+                InventoryId = inventory.Id,
+                ReelId = inventory.ReelId,
+                ProductId = inventory.ProductId,
+                Quantity = qty,
+                QuantityAfter = inventory.Quantity,
+                FromLocationId = locationId,
+                ToLocationId = locationId,
+                FromWarehouseId = warehouseId,
+                ToWarehouseId = warehouseId,
+                SN = inventory.SN,
+                BatchNo = inventory.BatchNo,
+                CraftVersion = inventory.CraftVersion,
+                Status = inventory.Status,
+                Remark = "库存增加"
+            };
 
+            var transaction = await inventoryTransactionManager.CreateAsync(createArgs);
             await transactionRepository.InsertAsync(transaction);
         }
 
@@ -196,32 +190,34 @@ namespace Polaris.WMS.InventoryManage.Domain.inventories
             if (locationId.HasValue)
             {
                 //var location = await locationRepository.GetAsync(locationId.Value);
-                var location = await ExternalLocationAdapter.GetLocationAsync(locationId.Value);
+                var location = await ExternalLocationProvider.GetLocationAsync(locationId.Value);
                 warehouseId = location.WarehouseId;
             }
 
-            var transaction = await inventoryTransactionManager.CreateAsync(
-                id: GuidGenerator.Create(),
-                type: transType,
-                billNo: string.IsNullOrWhiteSpace(businessOrderNo)
+            var deductArgs = new CreateInventoryTranscationArgs()
+            {
+                Id = GuidGenerator.Create(),
+                Type = transType,
+                BillNo = string.IsNullOrWhiteSpace(businessOrderNo)
                     ? $"INV-DEDUCT-{Clock.Now:yyyyMMddHHmmssfff}"
                     : businessOrderNo,
-                inventoryId: inventory.Id,
-                reelId: inventory.ReelId,
-                productId: inventory.ProductId,
-                quantity: qty,
-                quantityAfter: inventory.Quantity,
-                fromLocationId: locationId,
-                toLocationId: locationId,
-                fromWarehouseId: warehouseId,
-                toWarehouseId: warehouseId,
-                sn: inventory.SN,
-                batchNo: inventory.BatchNo,
-                craftVersion: inventory.CraftVersion,
-                status: inventory.Status,
-                remark: "库存扣减"
-            );
+                InventoryId = inventory.Id,
+                ReelId = inventory.ReelId,
+                ProductId = inventory.ProductId,
+                Quantity = qty,
+                QuantityAfter = inventory.Quantity,
+                FromLocationId = locationId,
+                ToLocationId = locationId,
+                FromWarehouseId = warehouseId,
+                ToWarehouseId = warehouseId,
+                SN = inventory.SN,
+                BatchNo = inventory.BatchNo,
+                CraftVersion = inventory.CraftVersion,
+                Status = inventory.Status,
+                Remark = "库存扣减"
+            };
 
+            var transaction = await inventoryTransactionManager.CreateAsync(deductArgs);
             await transactionRepository.InsertAsync(transaction);
 
             // 4. 终极逻辑：如果库存归零，处理盘具和库位状态
@@ -253,7 +249,7 @@ namespace Polaris.WMS.InventoryManage.Domain.inventories
                 if (locationId.HasValue)
                 {
                     //await locationManager.RefreshStatusByLoadAsync(locationId.Value);
-                    await ExternalLocationAdapter.RefreshStatusByLoadAsync(locationId.Value);
+                    await ExternalLocationProvider.RefreshStatusByLoadAsync(locationId.Value);
                 }
             }
         }

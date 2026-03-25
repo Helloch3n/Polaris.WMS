@@ -1,4 +1,6 @@
-using Polaris.WMS.Inventorys;
+using Polaris.WMS.Inventories.Invnentory;
+using Polaris.WMS.Inventories.Ivnentory;
+using Polaris.WMS.InventoryManage.Domain.inventories.Args;
 using Volo.Abp;
 using Volo.Abp.Domain.Services;
 
@@ -12,55 +14,38 @@ namespace Polaris.WMS.InventoryManage.Domain.inventories
         /// <summary>
         /// 创建库存流水实体（仅构建实体，不执行持久化）。
         /// </summary>
-        public Task<InventoryTransaction> CreateAsync(
-            Guid id,
-            TransactionType type,
-            string billNo,
-            Guid inventoryId,
-            Guid reelId,
-            Guid productId,
-            decimal quantity,
-            decimal quantityAfter,
-            Guid? fromLocationId,
-            Guid? toLocationId,
-            Guid? fromWarehouseId,
-            Guid? toWarehouseId,
-            string sn,
-            string batchNo,
-            string craftVersion,
-            InventoryStatus status,
-            string? remark = null)
+        public Task<InventoryTransaction> CreateAsync(CreateInventoryTranscationArgs args)
         {
-            if (quantity <= 0)
+            if (args.Quantity <= 0)
             {
                 throw new BusinessException("InventoryTransaction:QuantityMustBePositive")
-                    .WithData("Quantity", quantity);
+                    .WithData("Quantity", args.Quantity);
             }
 
-            if (quantityAfter < 0)
+            if (args.QuantityAfter < 0)
             {
                 throw new BusinessException("InventoryTransaction:QuantityAfterCannotBeNegative")
-                    .WithData("QuantityAfter", quantityAfter);
+                    .WithData("QuantityAfter", args.QuantityAfter);
             }
 
             var transaction = new InventoryTransaction(
-                id,
-                type,
-                billNo,
-                inventoryId,
-                reelId,
-                productId,
-                quantity,
-                quantityAfter,
-                fromLocationId,
-                toLocationId,
-                fromWarehouseId,
-                toWarehouseId,
-                sn,
-                batchNo,
-                craftVersion,
-                status,
-                remark);
+                args.Id,
+                args.Type,
+                args.BillNo,
+                args.InventoryId,
+                args.ReelId,
+                args.ProductId,
+                args.Quantity,
+                args.QuantityAfter,
+                args.FromLocationId,
+                args.ToLocationId,
+                args.FromWarehouseId,
+                args.ToWarehouseId,
+                args.SN,
+                args.BatchNo,
+                args.CraftVersion,
+                args.Status,
+                args.Remark);
 
             return Task.FromResult(transaction);
         }

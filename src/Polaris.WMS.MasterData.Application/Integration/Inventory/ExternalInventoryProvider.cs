@@ -6,8 +6,8 @@ using Volo.Abp.Application.Services;
 namespace Polaris.WMS.MasterData.Application.Integration.Inventory;
 
 [RemoteService(IsEnabled = false)]
-public class InventoryAllocationAdapter(IInventoryIntegrationService inventoryIntegrationService)
-    : ApplicationService, IInventoryAllocationAdapter
+public class ExternalInventoryProvider(IInventoryIntegrationService inventoryIntegrationService)
+    : ApplicationService, IExternalInventoryProvider
 {
     public async Task<List<InventoryInfo>> GetInventoryByReels(List<Guid> reelIds)
     {

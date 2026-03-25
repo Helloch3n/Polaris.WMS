@@ -2,7 +2,7 @@
 
 namespace Polaris.WMS.MasterData.Domain.Integration.Inventory;
 
-public interface IInventoryAllocationAdapter : ITransientDependency
+public interface IExternalInventoryProvider : ITransientDependency
 {
     Task<List<InventoryInfo>> GetInventoryByReels(List<Guid> reelIds);
 }

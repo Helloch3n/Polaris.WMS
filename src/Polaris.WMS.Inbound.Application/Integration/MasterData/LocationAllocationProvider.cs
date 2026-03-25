@@ -1,13 +1,12 @@
-﻿using Polaris.WMS.MasterData.Application.Contracts.Integration.Locations;
-using Polaris.WMS.TaskRouting.Domain.Integration;
-using Polaris.WMS.TaskRouting.Domain.Integration.MasterData;
+﻿using Polaris.WMS.Inbound.Domain.ProductionInbounds.Integration.MasterData;
+using Polaris.WMS.MasterData.Application.Contracts.Integration.Locations;
 using Volo.Abp.DependencyInjection;
 
-namespace Polaris.WMS.TaskRouting.Application.Integration.MasterData;
+namespace Polaris.WMS.Inbound.Application.Integration.MasterData;
 
-public class LocationAllocationAdapter(
+public class LocationAllocationProvider(
     ILocationIntegrationService locationIntegrationService // 注入主数据的服务
-) : ILocationAllocationAdapter, ITransientDependency // 实现任务模块的端口
+) : ILocationAllocationProvider, ITransientDependency // 实现任务模块的端口
 {
     public async Task<Guid> FindBestLocationIdAsync(Guid productId)
     {

@@ -29,6 +29,7 @@ using Volo.Abp.AspNetCore.Mvc;
 using Volo.Abp.AspNetCore.Mvc.Localization;
 using Volo.Abp.AspNetCore.Serilog;
 using Volo.Abp.Autofac;
+using Volo.Abp.EventBus.RabbitMq;
 using Volo.Abp.FeatureManagement;
 using Volo.Abp.Identity;
 using Volo.Abp.Identity.Web;
@@ -61,7 +62,8 @@ namespace Polaris.WMS.Web;
     typeof(PolarisWmsInventoryApplicationModule),
     typeof(PolarisWmsMasterDataApplicationModule),
     typeof(PolarisWmsOutboundApplicationModule),
-    typeof(PolarisWmsTaskApplicationModule)
+    typeof(PolarisWmsTaskApplicationModule),
+    typeof(AbpEventBusRabbitMqModule) // 添加 RabbitMQ 模块依赖
 )]
 public class WMSWebModule : AbpModule
 {

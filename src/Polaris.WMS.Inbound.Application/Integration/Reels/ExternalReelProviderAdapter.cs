@@ -1,5 +1,6 @@
 ﻿using Polaris.WMS.Inbound.Domain.Integration.Reels;
 using Polaris.WMS.InventoryManage.Application.Contracts.Integration.Reels;
+using Volo.Abp.Application.Services;
 using Volo.Abp.DependencyInjection;
 
 namespace Polaris.WMS.Inbound.Application.Integration.Reels;

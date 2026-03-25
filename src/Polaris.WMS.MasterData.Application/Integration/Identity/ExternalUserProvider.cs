@@ -4,7 +4,7 @@ using Volo.Abp;
 namespace Polaris.WMS.MasterData.Application.Integration.Identity;
 
 [RemoteService(IsEnabled = false)]
-public class UserAllocationAdapter:IUserAllocationAdapter
+public class ExternalUserProvider:IExternalUserProvider
 {
     public Task<List<ExternalUserInfo>> GetUserInfoAsync(List<Guid> userId)
     {

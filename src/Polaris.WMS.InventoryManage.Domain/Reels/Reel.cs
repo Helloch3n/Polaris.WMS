@@ -13,6 +13,7 @@ namespace Polaris.WMS.InventoryManage.Domain.Reels
         public bool IsLocked { get; private set; }
         public Guid? CurrentLocationId { get; private set; }
         public ReelType ReelType { get; private set; }
+
         protected Reel()
         {
         }
@@ -54,6 +55,7 @@ namespace Polaris.WMS.InventoryManage.Domain.Reels
 
         public void Lock(string reason)
         {
+            if (IsLocked) return;
             IsLocked = true;
         }
 

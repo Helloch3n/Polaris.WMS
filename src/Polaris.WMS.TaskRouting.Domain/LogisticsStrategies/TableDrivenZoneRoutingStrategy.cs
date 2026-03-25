@@ -8,7 +8,7 @@ namespace Polaris.WMS.TaskRouting.Domain.LogisticsStrategies;
 
 public class TableDrivenZoneRoutingStrategy(
     IRepository<RoutingStrategy, Guid> ruleRepository,
-    ILocationAllocationAdapter locationAdapter)
+    IExternalLocationProvider externalLocationProvider)
     : IZoneRoutingStrategy, ITransientDependency
 {
     public async Task<Guid> CalculateTargetZoneAsync(MoveTaskType taskType, Guid currentLocationId)
@@ -23,7 +23,7 @@ public class TableDrivenZoneRoutingStrategy(
         }
 
         activeRules.OrderBy(x => x.Priority);
-        var zoneId = await locationAdapter.GetZoneIdByLocationIdAsync(currentLocationId);
+        var zoneId = await externalLocationProvider.GetZoneIdByLocationIdAsync(currentLocationId);
 
         foreach (var rule in activeRules)
         {

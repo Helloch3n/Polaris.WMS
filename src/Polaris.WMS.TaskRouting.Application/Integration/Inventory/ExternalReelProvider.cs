@@ -5,9 +5,9 @@ using Volo.Abp.DependencyInjection;
 
 namespace Polaris.WMS.TaskRouting.Application.Integration.Inventory;
 
-public class ReelAllocationAdapter(
+public class ExternalReelProvider(
     IReelIntegrationService reelIntegrationService
-) : IReelAllocationAdapter, ITransientDependency
+) : IExternalReelProvider, ITransientDependency
 {
     public async Task MoveReelAsync(Guid reelId, Guid targetLocationId)
     {

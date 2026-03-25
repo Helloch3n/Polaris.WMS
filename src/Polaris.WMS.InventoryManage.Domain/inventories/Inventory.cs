@@ -1,4 +1,6 @@
-﻿using Polaris.WMS.Inventorys;
+﻿using Polaris.WMS.Inventories.Invnentory;
+using Polaris.WMS.Inventories.Invnentory.Events;
+using Polaris.WMS.Inventories.Ivnentory;
 using Volo.Abp;
 using Volo.Abp.Domain.Entities.Auditing;
 
@@ -111,16 +113,19 @@ namespace Polaris.WMS.InventoryManage.Domain.inventories
             {
                 throw new UserFriendlyException("扣减数量必须大于0。");
             }
+
             if (LockedQuantity < amount)
             {
                 throw new UserFriendlyException(
                     $"锁定数量不足，当前锁定 {LockedQuantity}，需要扣减 {amount}");
             }
+
             if (Quantity < amount)
             {
                 throw new UserFriendlyException(
                     $"库存数量不足，当前库存 {Quantity}，需要扣减 {amount}");
             }
+
             LockedQuantity -= amount;
             Quantity -= amount;
         }
@@ -150,5 +155,47 @@ namespace Polaris.WMS.InventoryManage.Domain.inventories
             Status = newStatus;
         }
 
+        public static Inventory CreateHoldInventory(Guid id,
+            Guid reelId,
+            Guid productId,
+            decimal quantity,
+            string unit,
+            decimal weight,
+            string batchNo,
+            string? relatedOrderNo,
+            string? relatedOrderLineNo,
+            DateTime fifoDate,
+            int layerIndex,
+            string sn,
+            string? craftVersion = null,
+            InventoryStatus status = InventoryStatus.Hold,
+            InventoryType type = InventoryType.SemiFinished)
+        {
+            var inventory = new Inventory(
+                id,
+                reelId,
+                productId,
+                quantity,
+                unit,
+                weight,
+                batchNo,
+                relatedOrderNo,
+                relatedOrderLineNo,
+                fifoDate,
+                layerIndex,
+                sn,
+                craftVersion,
+                status,
+                type);
+
+            // 在实体内部直接登记分布式事件，不需要注入 EventBus
+            inventory.AddDistributedEvent(new HoldInventoryCreatedEto
+            {
+                ContainerId = reelId,
+                ContainerCode = null
+            });
+
+            return inventory;
+        }
     }
 }

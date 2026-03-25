@@ -10,8 +10,8 @@ public class MoveTaskManager(
     IBillNumberGenerator billNumberGenerator,
     IRepository<MoveTask, Guid> transferOrderRepository) : DomainService
 {
-    public async Task<MoveTask> CreateMoveTaskAsync(MoveTaskType taskType, Guid containerId,
-        Guid? sourceLocationId,
+    public async Task<MoveTask> CreateMoveTaskAsync(MoveTaskType taskType, Guid containerId, string containerCode,
+        Guid sourceLocationId,
         Guid targetLocationId)
     {
         var orderNo = await billNumberGenerator.GetNextNumberAsync("MOV");
@@ -24,7 +24,7 @@ public class MoveTaskManager(
                 .WithData("搬运任务号", normalizedOrderNo);
         }
 
-        return MoveTask.Create(Guid.NewGuid(), orderNo, taskType, containerId, sourceLocationId,
+        return MoveTask.Create(Guid.NewGuid(), orderNo, taskType, containerId, containerCode, sourceLocationId,
             targetLocationId);
     }
 }

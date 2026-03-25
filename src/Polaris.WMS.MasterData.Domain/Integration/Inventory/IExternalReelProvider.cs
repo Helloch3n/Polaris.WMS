@@ -2,7 +2,7 @@
 
 namespace Polaris.WMS.MasterData.Domain.Integration.Inventory;
 
-public interface IReelAllocationAdapter : ITransientDependency
+public interface IExternalReelProvider : ITransientDependency
 {
     public Task<List<ReelInfo>> GetReelInfosByLocationIdAsync(Guid locationId);
 }

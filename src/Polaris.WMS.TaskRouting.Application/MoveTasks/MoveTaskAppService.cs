@@ -6,9 +6,11 @@ using Polaris.WMS.TaskRouting.Application.Contracts.MoveTasks.Dtos;
 using Polaris.WMS.TaskRouting.Domain.Integration.Inventory;
 using Polaris.WMS.TaskRouting.Domain.MoveTasks;
 using Polaris.WMS.Tasks;
+using Polaris.WMS.Tasks.MoveTask.Events;
 using Volo.Abp;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Domain.Repositories;
+using Volo.Abp.EventBus.Distributed;
 using Volo.Abp.EventBus.Local;
 
 namespace Polaris.WMS.TaskRouting.Application.MoveTasks
@@ -17,9 +19,10 @@ namespace Polaris.WMS.TaskRouting.Application.MoveTasks
     public class MoveTaskAppService(
         IRepository<MoveTask, Guid> taskRepository,
         ILocalEventBus localEventBus,
+        IDistributedEventBus distributedEventBus,
         IBillNumberGenerator billNumberGenerator,
         MoveTaskManager moveTaskManager,
-        IReelAllocationAdapter reelAllocationAdapter)
+        IExternalReelProvider externalReelProvider)
         : ApplicationService, IMoveTaskAppService
     {
         /// <summary>
@@ -37,10 +40,20 @@ namespace Polaris.WMS.TaskRouting.Application.MoveTasks
                 throw new UserFriendlyException($"载具 {input.ContainerId} 已有正在执行的搬运任务，切勿重复派发！");
 
             var moveTask = await moveTaskManager.CreateMoveTaskAsync(input.TaskType, input.ContainerId,
+                input.ContainerCode,
                 input.FromLocationId,
                 input.TargetLocationId);
 
             await taskRepository.InsertAsync(moveTask);
+
+            await distributedEventBus.PublishAsync(new MoveTaskCreatedEto
+            {
+                TaskId = moveTask.Id,
+                ContainerId = moveTask.ContainerId,
+                TaskType = moveTask.TaskType,
+                FromLocationId = moveTask.SourceLocationId,
+                TargetLocationId = moveTask.TargetLocationId
+            });
         }
 
         /// <summary>
@@ -55,14 +68,14 @@ namespace Polaris.WMS.TaskRouting.Application.MoveTasks
 
             // 2. 执行物理移库 
             // 调用领域服务：校验目标库位容量 -> 更新 Inventory 表的 LocationId
-            await reelAllocationAdapter.MoveReelAsync(task.ContainerId, input.ScannedLocationId);
+            await externalReelProvider.MoveReelAsync(task.ContainerId, input.ScannedLocationId);
 
             // 3. 更新任务状态为“已完成”，并记录实际扫码的库位
             task.Complete(input.ScannedLocationId);
             await taskRepository.UpdateAsync(task);
 
             // 5. 抛出接力事件：货真正落地了！(用于触发 LIMS 接口)
-            await localEventBus.PublishAsync(new ReelMovedEvent()
+            await distributedEventBus.PublishAsync(new ReelMovedEvent()
             {
                 ReelId = task.ContainerId,
                 ActualNewLocationId = input.ScannedLocationId, // 真实的落地位置 (QC大区)

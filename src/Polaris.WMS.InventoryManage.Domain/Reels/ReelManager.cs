@@ -1,6 +1,7 @@
-﻿using Polaris.WMS.InventoryManage.Domain.Integration.Locations;
+﻿using Polaris.WMS.Inventories.Transaction;
+using Polaris.WMS.InventoryManage.Domain.inventories.Args;
+using Polaris.WMS.InventoryManage.Domain.Integration.Locations;
 using Polaris.WMS.InventoryManage.Domain.inventories;
-using Polaris.WMS.Inventorys;
 using Polaris.WMS.MasterData.Reels;
 using Polaris.WMS.MasterData.Warehouses;
 using Volo.Abp;
@@ -21,7 +22,7 @@ namespace Polaris.WMS.InventoryManage.Domain.Reels
         )
         : DomainService
     {
-        private IExternalLocationAdapter ExternalLocationAdapter => LazyServiceProvider.LazyGetRequiredService<IExternalLocationAdapter>();
+        private IExternalLocationProvider ExternalLocationProvider => LazyServiceProvider.LazyGetRequiredService<IExternalLocationProvider>();
         /// <summary>
         /// 创建盘具聚合，并在盘号为空时自动生成盘号。
         /// </summary>
@@ -31,6 +32,7 @@ namespace Polaris.WMS.InventoryManage.Domain.Reels
         /// <param name="size">规格。</param>
         /// <param name="selfWeight">自重。</param>
         /// <param name="currentLocationId">当前库位。</param>
+        /// <param name="reelType">盘具类型。</param>
         /// <returns>创建完成的盘具聚合。</returns>
         public async Task<Reel> CreateAsync(
             Guid id,
@@ -146,7 +148,7 @@ namespace Polaris.WMS.InventoryManage.Domain.Reels
 
             // 2. 跨聚合校验：目标库位合法性
             //var targetLocation = await _locationRepository.GetAsync(targetLocationId);
-            var targetLocation = await ExternalLocationAdapter.GetLocationAsync(targetLocationId);
+            var targetLocation = await ExternalLocationProvider.GetLocationAsync(targetLocationId);
 
             if (targetLocation.Status == LocationStatus.Locked)
             {
@@ -170,7 +172,7 @@ namespace Polaris.WMS.InventoryManage.Domain.Reels
             if (originalLocationId.HasValue)
             {
                 //sourceLocation = await _locationRepository.FirstOrDefaultAsync(x => x.Id == originalLocationId.Value);
-                sourceLocation = await ExternalLocationAdapter.GetLocationAsync(originalLocationId.Value);
+                sourceLocation = await ExternalLocationProvider.GetLocationAsync(originalLocationId.Value);
             }
 
             // 3. 改变盘具自身的物理位置
@@ -179,13 +181,13 @@ namespace Polaris.WMS.InventoryManage.Domain.Reels
 
             // 4. 刷新目标库位状态
             //await _locationManager.RefreshStatusByLoadAsync(targetLocationId);
-            await ExternalLocationAdapter.RefreshStatusByLoadAsync(targetLocationId);
+            await ExternalLocationProvider.RefreshStatusByLoadAsync(targetLocationId);
 
             // 5. 刷新原库位状态
             if (originalLocationId.HasValue)
             {
                 //await _locationManager.RefreshStatusByLoadAsync(originalLocationId.Value);
-                await ExternalLocationAdapter.RefreshStatusByLoadAsync(originalLocationId.Value);
+                await ExternalLocationProvider.RefreshStatusByLoadAsync(originalLocationId.Value);
             }
 
             // 6. 核心动作：生成库存流水 & 同步库存明细的位置
@@ -194,29 +196,30 @@ namespace Polaris.WMS.InventoryManage.Domain.Reels
             foreach (var inventory in inventories)
             {
                 // 生成移库流水
-                var transaction = await inventoryTransactionManager.CreateAsync(
-                    id: GuidGenerator.Create(),
-                    type: TransactionType.Transfer,
-                    billNo: string.IsNullOrWhiteSpace(businessOrderNo)
+                var createArgs = new CreateInventoryTranscationArgs
+                {
+                    Id = GuidGenerator.Create(),
+                    Type = TransactionType.Transfer,
+                    BillNo = string.IsNullOrWhiteSpace(businessOrderNo)
                         ? $"REEL-TRANSFER-{Clock.Now:yyyyMMddHHmmssfff}"
                         : businessOrderNo,
-                    inventoryId: inventory.Id,
-                    reelId: inventory.ReelId,
-                    productId: inventory.ProductId,
-                    quantity: inventory.Quantity,
-                    quantityAfter: inventory.Quantity,
-                    fromLocationId: originalLocationId,
-                    toLocationId: targetLocationId,
-                    fromWarehouseId: sourceLocation?.WarehouseId,
-                    toWarehouseId: targetLocation.WarehouseId,
-                    sn: inventory.SN,
-                    batchNo: inventory.BatchNo,
-                    craftVersion: inventory.CraftVersion,
-                    status: inventory.Status,
-                    remark: "盘具移库"
-                );
+                    InventoryId = inventory.Id,
+                    ReelId = inventory.ReelId,
+                    ProductId = inventory.ProductId,
+                    Quantity = inventory.Quantity,
+                    QuantityAfter = inventory.Quantity,
+                    FromLocationId = originalLocationId,
+                    ToLocationId = targetLocationId,
+                    FromWarehouseId = sourceLocation?.WarehouseId,
+                    ToWarehouseId = targetLocation.WarehouseId,
+                    SN = inventory.SN,
+                    BatchNo = inventory.BatchNo,
+                    CraftVersion = inventory.CraftVersion,
+                    Status = inventory.Status,
+                    Remark = "盘具移库"
+                };
 
-
+                var transaction = await inventoryTransactionManager.CreateAsync(createArgs);
                 await transactionRepository.InsertAsync(transaction);
             }
         }

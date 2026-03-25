@@ -1,5 +1,7 @@
-﻿using Polaris.WMS.InventoryManage.Domain.Reels;
-using Polaris.WMS.Inventorys;
+﻿using Polaris.WMS.Inventories.Invnentory;
+using Polaris.WMS.Inventories.Ivnentory;
+using Polaris.WMS.Inventories.Transaction;
+using Polaris.WMS.InventoryManage.Domain.Reels;
 using Volo.Abp;
 using Volo.Abp.Domain.Entities.Auditing;
 

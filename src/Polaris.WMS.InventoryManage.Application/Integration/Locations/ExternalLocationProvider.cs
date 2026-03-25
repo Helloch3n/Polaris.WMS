@@ -6,9 +6,9 @@ using Volo.Abp.DependencyInjection;
 namespace Polaris.WMS.InventoryManage.Application.Integration.Locations;
 
 [RemoteService(IsEnabled = false)]
-public class ExternalLocationAdapter(
+public class ExternalLocationProvider(
     ILocationIntegrationService locationIntegrationService
-) : IExternalLocationAdapter, ITransientDependency
+) : IExternalLocationProvider, ITransientDependency
 {
     public async Task<ExternalLocationInfo> GetLocationAsync(Guid id)
     {

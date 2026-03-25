@@ -5,8 +5,8 @@ using Volo.Abp.Application.Services;
 
 namespace Polaris.WMS.MasterData.Application.Integration.Inventory;
 
-public class ReelAllocationAdapter(IReelIntegrationService reelIntegrationService)
-    : ApplicationService, IReelAllocationAdapter
+public class ExternalReelProvider(IReelIntegrationService reelIntegrationService)
+    : ApplicationService, IExternalReelProvider
 {
     public async Task<List<ReelInfo>> GetReelInfosByLocationIdAsync(Guid locationId)
     {
