@@ -1,4 +1,5 @@
 ﻿using Polaris.WMS.Inventories.Invnentory;
+using Polaris.WMS.Inventories.Invnentory.Events;
 using Polaris.WMS.Inventories.Transaction;
 using Polaris.WMS.InventoryManage.Domain.Integration.Locations;
 using Polaris.WMS.InventoryManage.Domain.inventories.Args;
@@ -6,6 +7,8 @@ using Polaris.WMS.InventoryManage.Domain.Reels;
 using Volo.Abp;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Domain.Services;
+using Volo.Abp.EventBus.Distributed;
+using Volo.Abp.EventBus.Local;
 
 namespace Polaris.WMS.InventoryManage.Domain.inventories
 {
@@ -14,7 +17,9 @@ namespace Polaris.WMS.InventoryManage.Domain.inventories
         IRepository<Reel, Guid> reelRepository,
         ReelManager reelManager,
         IRepository<InventoryTransaction, Guid> transactionRepository,
-        InventoryTransactionManager inventoryTransactionManager
+        InventoryTransactionManager inventoryTransactionManager,
+        IDistributedEventBus distributedEventBus,
+        ILocalEventBus localEventBus
         //IExternalLocationAdapter externalLocationAdapter
     )
         : DomainService
@@ -61,6 +66,14 @@ namespace Polaris.WMS.InventoryManage.Domain.inventories
                     item.Status);
 
                 await inventoryRepository.InsertAsync(inventory);
+
+                //发入库待检事件
+                await localEventBus.PublishAsync(new HoldInventoryCreatedEto()
+                {
+                    ContainerId = args.ReelId,
+                    ContainerCode = reel.ReelNo,
+                    CurrentLocationId = args.LocationId,
+                });
 
                 //生成库存流水
                 Guid? warehouseId = null;

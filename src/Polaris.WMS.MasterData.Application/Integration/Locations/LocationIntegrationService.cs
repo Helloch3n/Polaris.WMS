@@ -8,6 +8,7 @@ using Volo.Abp.Application.Services;
 using Volo.Abp.Domain.Repositories;
 
 namespace Polaris.WMS.MasterData.Application.Integration.Locations;
+
 [RemoteService(IsEnabled = false)]
 public class LocationIntegrationService(
     IRepository<Location, Guid> locationRepository,
@@ -18,10 +19,15 @@ public class LocationIntegrationService(
 {
     public async Task<Guid> GetBestAvailableLocationIdAsync(Guid zoneId)
     {
-        // 把你以前写在 StandardLocationAllocationStrategy 里的 LINQ 查询搬到这里！
+        // 查找可用库位
         var location = await locationRepository.FirstOrDefaultAsync(x =>
-            x.Id == zoneId &&
-            x.Status == LocationStatus.Idle); // 举个例子
+            x.ZoneId == zoneId &&
+            (x.Status == LocationStatus.Idle || x.Status == LocationStatus.Partial)); // 举个例子
+
+        if (location == null)
+        {
+            throw new UserFriendlyException($"在库区 {zoneId} 中没有找到任何可用（空闲或部分占用）的库位！");
+        }
 
         return location.Id;
     }
@@ -29,7 +35,7 @@ public class LocationIntegrationService(
     public async Task<Guid> GetZoneIdByLocationIdAsync(Guid locationId)
     {
         var location = await locationRepository.GetAsync(x => x.Id == locationId);
-        return location.Id;
+        return location.ZoneId;
     }
 
     public async Task<LocationIntegrationDto> GetAsync(Guid id)

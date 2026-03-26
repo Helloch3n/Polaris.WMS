@@ -1,4 +1,5 @@
 ﻿using Polaris.WMS.Tasks;
+using Polaris.WMS.Tasks.MoveTask.Events;
 using Volo.Abp.Domain.Entities.Auditing;
 
 namespace Polaris.WMS.TaskRouting.Domain.MoveTasks;
@@ -37,7 +38,7 @@ public class MoveTask : FullAuditedAggregateRoot<Guid>
         TaskNo = taskNo;
         TaskType = taskType;
         ContainerId = containerId;
-        containerCode = containerCode;
+        ContainerCode = containerCode;
         SourceLocationId = sourceLocationId;
         TargetLocationId = targetLocationId;
         Status = MoveTaskStatus.Pending; // 初始状态必为待执行
@@ -71,5 +72,21 @@ public class MoveTask : FullAuditedAggregateRoot<Guid>
     public void Cancel()
     {
         Status = MoveTaskStatus.Cancelled;
+    }
+
+    /// <summary>
+    /// 触发“搬运任务已创建”的分布式事件
+    /// </summary>
+    public void GenerateCreatedEvent()
+    {
+        // 因为是在实体内部，这里可以合法访问 protected 的 AddDistributedEvent 方法
+        AddLocalEvent(new MoveTaskCreatedEto
+        {
+            TaskId = this.Id,
+            ContainerId = this.ContainerId,
+            TaskType = this.TaskType,
+            FromLocationId = this.SourceLocationId, // 注意匹配你实体的属性名
+            TargetLocationId = this.TargetLocationId
+        });
     }
 }

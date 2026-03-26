@@ -1,12 +1,14 @@
 ﻿using Polaris.WMS.InventoryManage.Domain.Reels;
 using Polaris.WMS.Tasks.MoveTask.Events;
 using Volo.Abp.DependencyInjection;
+using Volo.Abp.Domain.Repositories;
+using Volo.Abp.EventBus;
 using Volo.Abp.EventBus.Distributed;
 
 namespace Polaris.WMS.InventoryManage.Application.Reels.EventHandlers;
 
-public class MoveTaskCreatedHandler(IReelRepository reelRepository)
-    : IDistributedEventHandler<MoveTaskCreatedEto>, ITransientDependency
+public class MoveTaskCreatedHandler(IRepository<Reel, Guid> reelRepository)
+    : ILocalEventHandler<MoveTaskCreatedEto>, ITransientDependency
 {
     public async Task HandleEventAsync(MoveTaskCreatedEto eventData)
     {

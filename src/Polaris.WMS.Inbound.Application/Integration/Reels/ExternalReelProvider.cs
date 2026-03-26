@@ -5,7 +5,7 @@ using Volo.Abp.DependencyInjection;
 
 namespace Polaris.WMS.Inbound.Application.Integration.Reels;
 
-public class ExternalReelProviderAdapter(
+public class ExternalReelProvider(
     IReelIntegrationService reelIntegrationService
 ) : IExternalReelProvider, ITransientDependency
 {

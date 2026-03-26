@@ -2,18 +2,21 @@
 using Polaris.WMS.TaskRouting.Application.Contracts.MoveTasks;
 using Polaris.WMS.TaskRouting.Application.Contracts.MoveTasks.Dtos;
 using Polaris.WMS.TaskRouting.Domain.LogisticsStrategies;
+using Polaris.WMS.TaskRouting.Domain.MoveTasks;
 using Polaris.WMS.Tasks;
 using Volo.Abp.DependencyInjection;
 using Volo.Abp.EventBus;
 using Volo.Abp.EventBus.Distributed;
+using Volo.Abp.Uow;
 
 namespace Polaris.WMS.TaskRouting.Application.MoveTasks.EventHandlers;
 
 public class GenerateQcMoveTaskHandler(
     IMoveTaskAppService moveTaskAppService,
     IZoneRoutingStrategy zoneRoutingStrategy,
-    ILocationAllocationStrategy allocationStrategy)
-    : IDistributedEventHandler<HoldInventoryCreatedEto>, ITransientDependency
+    ILocationAllocationStrategy allocationStrategy,
+    MoveTaskManager moveTaskManager)
+    : ILocalEventHandler<HoldInventoryCreatedEto>, ITransientDependency
 {
     public async Task HandleEventAsync(HoldInventoryCreatedEto eventData)
     {
@@ -29,13 +32,11 @@ public class GenerateQcMoveTaskHandler(
         );
 
         // 生成搬运任务！
-        await moveTaskAppService.CreateAsync(new CreateMoveTaskDto
-        {
-            ContainerId = eventData.ContainerId,
-            ContainerCode = eventData.ContainerCode,
-            FromLocationId = eventData.CurrentLocationId,
-            TargetLocationId = targetLocationId,
-            TaskType = MoveTaskType.MoveToQc // 明确这是一个送检跑腿任务
-        });
+        await moveTaskManager.CreateMoveTaskAsync(
+            MoveTaskType.MoveToQc,
+            eventData.ContainerId, // Eto 里的属性
+            eventData.ContainerCode, // Eto 里的属性
+            eventData.CurrentLocationId,
+            targetLocationId);
     }
 }

@@ -51,7 +51,8 @@ namespace Polaris.WMS.MasterData.Application.Zones
                     warehouseQuery = warehouseQuery.Where(x => x.Name.Contains(input.WarehouseName));
                 }
 
-                var warehouseIds = warehouseQuery.Select(x => x.Id);
+                //var warehouseIds = warehouseQuery.Select(x => x.Id);
+                var warehouseIds = await AsyncExecuter.ToListAsync(warehouseQuery.Select(x => x.Id));
                 query = query.Where(x => warehouseIds.Contains(x.WarehouseId));
             }
 

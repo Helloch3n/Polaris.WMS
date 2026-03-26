@@ -188,13 +188,6 @@ namespace Polaris.WMS.InventoryManage.Domain.inventories
                 status,
                 type);
 
-            // 在实体内部直接登记分布式事件，不需要注入 EventBus
-            inventory.AddDistributedEvent(new HoldInventoryCreatedEto
-            {
-                ContainerId = reelId,
-                ContainerCode = null
-            });
-
             return inventory;
         }
     }

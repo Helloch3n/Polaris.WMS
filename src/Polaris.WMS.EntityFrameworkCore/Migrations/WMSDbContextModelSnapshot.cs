@@ -24,35 +24,7 @@ namespace Polaris.WMS.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Polaris.WMS.DataSync.DataSyncFieldMapping", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("SourceField")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)")
-                        .HasComment("鏉ユ簮瀛楁");
-
-                    b.Property<string>("TargetField")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)")
-                        .HasComment("鐩爣瀛楁");
-
-                    b.Property<Guid>("TaskId")
-                        .HasColumnType("uuid")
-                        .HasComment("鎵€灞炰换鍔?ID");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TaskId");
-
-                    b.ToTable("AppDataSyncFieldMappings", (string)null);
-                });
-
-            modelBuilder.Entity("Polaris.WMS.DataSync.DataSyncTask", b =>
+            modelBuilder.Entity("Polaris.WMS.Inbound.Domain.ProductionInbounds.ProductionInbound", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
@@ -72,11 +44,201 @@ namespace Polaris.WMS.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("CreatorId");
 
-                    b.Property<string>("CronExpression")
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<Guid>("DepartmentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ExtraProperties")
                         .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)")
-                        .HasComment("Cron 表达式");
+                        .HasColumnType("text")
+                        .HasColumnName("ExtraProperties");
+
+                    b.Property<int>("InboundType")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<string>("OrderNo")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<Guid>("SourceDepartmentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("SourceOrderNo")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("TargetWarehouseId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("WarehouseId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DepartmentId");
+
+                    b.HasIndex("OrderNo")
+                        .IsUnique();
+
+                    b.HasIndex("SourceOrderNo");
+
+                    b.HasIndex("WarehouseId");
+
+                    b.ToTable("AppProductionInbounds", (string)null);
+                });
+
+            modelBuilder.Entity("Polaris.WMS.Inbound.Domain.ProductionInbounds.ProductionInboundDetail", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ActualLocationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("BatchNo")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("CraftVersion")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<int>("LayerIndex")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ProductionInboundId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("Qty")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("numeric(18,4)");
+
+                    b.Property<Guid>("ReelId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("RelatedOrderNo")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("RelatedOrderNoLineNo")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("SN")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Unit")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<decimal>("Weight")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("numeric(18,4)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BatchNo");
+
+                    b.HasIndex("ProductionInboundId");
+
+                    b.HasIndex("ReelId");
+
+                    b.HasIndex("SN");
+
+                    b.ToTable("AppProductionInboundDetails", (string)null);
+                });
+
+            modelBuilder.Entity("Polaris.WMS.InventoryManage.Domain.Reels.Reel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("ConcurrencyStamp");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<Guid?>("CurrentLocationId")
+                        .HasColumnType("uuid");
 
                     b.Property<Guid?>("DeleterId")
                         .HasColumnType("uuid")
@@ -97,8 +259,10 @@ namespace Polaris.WMS.Migrations
                         .HasDefaultValue(false)
                         .HasColumnName("IsDeleted");
 
-                    b.Property<bool>("IsEnabled")
-                        .HasColumnType("boolean");
+                    b.Property<bool>("IsLocked")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
 
                     b.Property<DateTime?>("LastModificationTime")
                         .HasColumnType("timestamp without time zone")
@@ -108,50 +272,161 @@ namespace Polaris.WMS.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("LastModifierId");
 
-                    b.Property<string>("LastSyncMessage")
-                        .HasMaxLength(1024)
-                        .HasColumnType("character varying(1024)")
-                        .HasComment("上次执行日志或异常摘要");
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
-                    b.Property<int>("LastSyncStatus")
+                    b.Property<string>("ReelNo")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<int>("ReelType")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime?>("LastSyncTime")
-                        .HasColumnType("timestamp without time zone");
+                    b.Property<decimal>("SelfWeight")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("numeric(18,4)");
 
-                    b.Property<string>("SyncUrl")
+                    b.Property<string>("Size")
                         .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)")
-                        .HasComment("鍚屾鍦板潃");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
-                    b.Property<string>("TargetTable")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)")
-                        .HasComment("鐩爣琛ㄥ悕");
-
-                    b.Property<string>("TaskCode")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)")
-                        .HasComment("浠诲姟缂栫爜");
-
-                    b.Property<string>("TaskName")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)")
-                        .HasComment("浠诲姟鍚嶇О");
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TaskCode")
+                    b.HasIndex("ReelNo")
                         .IsUnique();
 
-                    b.ToTable("AppDataSyncTasks", (string)null);
+                    b.ToTable("AppReels", (string)null);
                 });
 
-            modelBuilder.Entity("Polaris.WMS.Inventorys.Inventory", b =>
+            modelBuilder.Entity("Polaris.WMS.InventoryManage.Domain.TransferOrders.TransferOrder", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("ConcurrencyStamp");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<Guid>("DepartmentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ExtraProperties")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("ExtraProperties");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<string>("OrderNo")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<Guid>("SourceDepartmentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("SourceWarehouseId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<Guid>("TargetWarehouseId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("WarehouseId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderNo")
+                        .IsUnique();
+
+                    b.ToTable("AppTransferOrders", (string)null);
+                });
+
+            modelBuilder.Entity("Polaris.WMS.InventoryManage.Domain.TransferOrders.TransferOrderDetail", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("InventoryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsCompleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("Qty")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("numeric(18,4)");
+
+                    b.Property<Guid>("ReelId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("SourceLocationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TargetLocationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TransferOrderId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InventoryId");
+
+                    b.HasIndex("ReelId");
+
+                    b.HasIndex("TransferOrderId");
+
+                    b.ToTable("AppTransferOrderDetails", (string)null);
+                });
+
+            modelBuilder.Entity("Polaris.WMS.InventoryManage.Domain.inventories.Inventory", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
@@ -280,7 +555,7 @@ namespace Polaris.WMS.Migrations
                     b.ToTable("AppInventorys", (string)null);
                 });
 
-            modelBuilder.Entity("Polaris.WMS.Inventorys.InventoryTransaction", b =>
+            modelBuilder.Entity("Polaris.WMS.InventoryManage.Domain.inventories.InventoryTransaction", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
@@ -352,116 +627,14 @@ namespace Polaris.WMS.Migrations
 
                     b.HasIndex("CreationTime");
 
-                    b.HasIndex("FromLocationId");
-
-                    b.HasIndex("FromWarehouseId");
-
                     b.HasIndex("InventoryId");
 
-                    b.HasIndex("ProductId");
-
                     b.HasIndex("ReelId");
-
-                    b.HasIndex("ToLocationId");
-
-                    b.HasIndex("ToWarehouseId");
 
                     b.ToTable("AppInventoryTransactions", (string)null);
                 });
 
-            modelBuilder.Entity("Polaris.WMS.LogisticsStrategies.RoutingStrategy", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .HasMaxLength(40)
-                        .HasColumnType("character varying(40)")
-                        .HasColumnName("ConcurrencyStamp");
-
-                    b.Property<DateTime>("CreationTime")
-                        .HasColumnType("timestamp without time zone")
-                        .HasColumnName("CreationTime");
-
-                    b.Property<Guid?>("CreatorId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("CreatorId");
-
-                    b.Property<Guid?>("DeleterId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("DeleterId");
-
-                    b.Property<DateTime?>("DeletionTime")
-                        .HasColumnType("timestamp without time zone")
-                        .HasColumnName("DeletionTime");
-
-                    b.Property<string>("ExtraProperties")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("ExtraProperties");
-
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true)
-                        .HasComment("是否启用");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false)
-                        .HasColumnName("IsDeleted");
-
-                    b.Property<DateTime?>("LastModificationTime")
-                        .HasColumnType("timestamp without time zone")
-                        .HasColumnName("LastModificationTime");
-
-                    b.Property<Guid?>("LastModifierId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("LastModifierId");
-
-                    b.Property<int>("Priority")
-                        .HasColumnType("integer")
-                        .HasComment("规则优先级，数字越小越优先");
-
-                    b.Property<Guid?>("ProductCategoryId")
-                        .HasColumnType("uuid")
-                        .HasComment("物料类别 Id（可选）");
-
-                    b.Property<Guid?>("ProductId")
-                        .HasColumnType("uuid")
-                        .HasComment("物料 Id（可选）");
-
-                    b.Property<string>("RuleName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasComment("路由规则名称");
-
-                    b.Property<Guid?>("SourceZoneId")
-                        .HasColumnType("uuid")
-                        .HasComment("来源分区/库区 Id（可选）");
-
-                    b.Property<Guid>("TargetZoneId")
-                        .HasColumnType("uuid")
-                        .HasComment("目标分区/库区 Id");
-
-                    b.Property<int>("TaskType")
-                        .HasColumnType("integer")
-                        .HasComment("任务类型");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RuleName");
-
-                    b.HasIndex("TaskType", "IsActive", "Priority");
-
-                    b.ToTable("AppRoutingStrategies", (string)null);
-                });
-
-            modelBuilder.Entity("Polaris.WMS.MasterData.Locations.Location", b =>
+            modelBuilder.Entity("Polaris.WMS.MasterData.Domain.Locations.Location", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
@@ -593,6 +766,146 @@ namespace Polaris.WMS.Migrations
                     b.ToTable("AppLocations", (string)null);
                 });
 
+            modelBuilder.Entity("Polaris.WMS.MasterData.Domain.Zones.Zone", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("库区编码");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("ConcurrencyStamp");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<string>("ExtraProperties")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("ExtraProperties");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasComment("库区名称");
+
+                    b.Property<Guid>("WarehouseId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("ZoneType")
+                        .HasColumnType("integer")
+                        .HasComment("库区类型");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("WarehouseId");
+
+                    b.ToTable("AppZones", (string)null);
+                });
+
+            modelBuilder.Entity("Polaris.WMS.MasterData.Domain.warehouses.Warehouse", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("仓库编码");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("ConcurrencyStamp");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<string>("ExtraProperties")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("ExtraProperties");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasComment("仓库名称");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.ToTable("AppWarehouses", (string)null);
+                });
+
             modelBuilder.Entity("Polaris.WMS.MasterData.Product", b =>
                 {
                     b.Property<Guid>("Id")
@@ -682,96 +995,6 @@ namespace Polaris.WMS.Migrations
                         .IsUnique();
 
                     b.ToTable("AppProducts", (string)null);
-                });
-
-            modelBuilder.Entity("Polaris.WMS.MasterData.Reels.Reel", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .HasMaxLength(40)
-                        .HasColumnType("character varying(40)")
-                        .HasColumnName("ConcurrencyStamp");
-
-                    b.Property<DateTime>("CreationTime")
-                        .HasColumnType("timestamp without time zone")
-                        .HasColumnName("CreationTime");
-
-                    b.Property<Guid?>("CreatorId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("CreatorId");
-
-                    b.Property<Guid?>("CurrentLocationId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("DeleterId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("DeleterId");
-
-                    b.Property<DateTime?>("DeletionTime")
-                        .HasColumnType("timestamp without time zone")
-                        .HasColumnName("DeletionTime");
-
-                    b.Property<string>("ExtraProperties")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("ExtraProperties");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false)
-                        .HasColumnName("IsDeleted");
-
-                    b.Property<bool>("IsLocked")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false);
-
-                    b.Property<DateTime?>("LastModificationTime")
-                        .HasColumnType("timestamp without time zone")
-                        .HasColumnName("LastModificationTime");
-
-                    b.Property<Guid?>("LastModifierId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("LastModifierId");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.Property<string>("ReelNo")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<int>("ReelType")
-                        .HasColumnType("integer");
-
-                    b.Property<decimal>("SelfWeight")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("numeric(18,4)");
-
-                    b.Property<string>("Size")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CurrentLocationId");
-
-                    b.HasIndex("ReelNo")
-                        .IsUnique();
-
-                    b.ToTable("AppReels", (string)null);
                 });
 
             modelBuilder.Entity("Polaris.WMS.MasterData.Supplier", b =>
@@ -865,16 +1088,10 @@ namespace Polaris.WMS.Migrations
                     b.ToTable("AppSuppliers", (string)null);
                 });
 
-            modelBuilder.Entity("Polaris.WMS.MasterData.Warehouses.Warehouse", b =>
+            modelBuilder.Entity("Polaris.WMS.TaskRouting.Domain.LogisticsStrategies.RoutingStrategy", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasComment("仓库编码");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -904,6 +1121,12 @@ namespace Polaris.WMS.Migrations
                         .HasColumnType("text")
                         .HasColumnName("ExtraProperties");
 
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("是否启用");
+
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
@@ -918,479 +1141,51 @@ namespace Polaris.WMS.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("LastModifierId");
 
-                    b.Property<string>("Name")
+                    b.Property<int>("Priority")
+                        .HasColumnType("integer")
+                        .HasComment("规则优先级，数字越小越优先");
+
+                    b.Property<Guid?>("ProductCategoryId")
+                        .HasColumnType("uuid")
+                        .HasComment("物料类别 Id（可选）");
+
+                    b.Property<Guid?>("ProductId")
+                        .HasColumnType("uuid")
+                        .HasComment("物料 Id（可选）");
+
+                    b.Property<string>("RuleName")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)")
-                        .HasComment("仓库名称");
+                        .HasComment("路由规则名称");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex("Code")
-                        .IsUnique();
-
-                    b.ToTable("AppWarehouses", (string)null);
-                });
-
-            modelBuilder.Entity("Polaris.WMS.MasterData.Zones.Zone", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasComment("库区编码");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .HasMaxLength(40)
-                        .HasColumnType("character varying(40)")
-                        .HasColumnName("ConcurrencyStamp");
-
-                    b.Property<DateTime>("CreationTime")
-                        .HasColumnType("timestamp without time zone")
-                        .HasColumnName("CreationTime");
-
-                    b.Property<Guid?>("CreatorId")
+                    b.Property<Guid?>("SourceZoneId")
                         .HasColumnType("uuid")
-                        .HasColumnName("CreatorId");
+                        .HasComment("来源分区/库区 Id（可选）");
 
-                    b.Property<Guid?>("DeleterId")
+                    b.Property<Guid>("TargetZoneId")
                         .HasColumnType("uuid")
-                        .HasColumnName("DeleterId");
+                        .HasComment("目标分区/库区 Id");
 
-                    b.Property<DateTime?>("DeletionTime")
-                        .HasColumnType("timestamp without time zone")
-                        .HasColumnName("DeletionTime");
-
-                    b.Property<string>("ExtraProperties")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("ExtraProperties");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false)
-                        .HasColumnName("IsDeleted");
-
-                    b.Property<DateTime?>("LastModificationTime")
-                        .HasColumnType("timestamp without time zone")
-                        .HasColumnName("LastModificationTime");
-
-                    b.Property<Guid?>("LastModifierId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("LastModifierId");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasComment("库区名称");
-
-                    b.Property<Guid>("WarehouseId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("ZoneType")
+                    b.Property<int>("TaskType")
                         .HasColumnType("integer")
-                        .HasComment("库区类型");
+                        .HasComment("任务类型");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("WarehouseId");
+                    b.HasIndex("RuleName");
 
-                    b.ToTable("AppZones", (string)null);
+                    b.HasIndex("TaskType", "IsActive", "Priority");
+
+                    b.ToTable("AppRoutingStrategies", (string)null);
                 });
 
-            modelBuilder.Entity("Polaris.WMS.Outbound.OutboundOrder", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .HasMaxLength(40)
-                        .HasColumnType("character varying(40)")
-                        .HasColumnName("ConcurrencyStamp");
-
-                    b.Property<DateTime>("CreationTime")
-                        .HasColumnType("timestamp without time zone")
-                        .HasColumnName("CreationTime");
-
-                    b.Property<Guid?>("CreatorId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("CreatorId");
-
-                    b.Property<string>("CustomerName")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasComment("客户名称");
-
-                    b.Property<Guid?>("DeleterId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("DeleterId");
-
-                    b.Property<DateTime?>("DeletionTime")
-                        .HasColumnType("timestamp without time zone")
-                        .HasColumnName("DeletionTime");
-
-                    b.Property<string>("ExtraProperties")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("ExtraProperties");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false)
-                        .HasColumnName("IsDeleted");
-
-                    b.Property<DateTime?>("LastModificationTime")
-                        .HasColumnType("timestamp without time zone")
-                        .HasColumnName("LastModificationTime");
-
-                    b.Property<Guid?>("LastModifierId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("LastModifierId");
-
-                    b.Property<string>("OrderNo")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasComment("出库单号");
-
-                    b.Property<string>("SourceOrderNo")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasComment("外部单号");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer")
-                        .HasComment("状态");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("AppOutboundOrders", (string)null);
-                });
-
-            modelBuilder.Entity("Polaris.WMS.Outbound.OutboundOrderItem", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("AllocatedQuantity")
-                        .HasColumnType("integer")
-                        .HasComment("已分配件数");
-
-                    b.Property<Guid>("OutboundOrderId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("ProductCode")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasComment("物料编码");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("integer")
-                        .HasComment("需求件数");
-
-                    b.Property<decimal>("TargetLength")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)")
-                        .HasComment("单根目标长度");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OutboundOrderId");
-
-                    b.ToTable("AppOutboundOrderItems", (string)null);
-                });
-
-            modelBuilder.Entity("Polaris.WMS.Outbound.PickTask", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .HasMaxLength(40)
-                        .HasColumnType("character varying(40)")
-                        .HasColumnName("ConcurrencyStamp");
-
-                    b.Property<DateTime>("CreationTime")
-                        .HasColumnType("timestamp without time zone")
-                        .HasColumnName("CreationTime");
-
-                    b.Property<Guid?>("CreatorId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("CreatorId");
-
-                    b.Property<Guid?>("DeleterId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("DeleterId");
-
-                    b.Property<DateTime?>("DeletionTime")
-                        .HasColumnType("timestamp without time zone")
-                        .HasColumnName("DeletionTime");
-
-                    b.Property<string>("ExtraProperties")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("ExtraProperties");
-
-                    b.Property<string>("FromLocation")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasComment("鏉ユ簮搴撲綅");
-
-                    b.Property<Guid>("InventoryId")
-                        .HasColumnType("uuid");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false)
-                        .HasColumnName("IsDeleted");
-
-                    b.Property<DateTime?>("LastModificationTime")
-                        .HasColumnType("timestamp without time zone")
-                        .HasColumnName("LastModificationTime");
-
-                    b.Property<Guid?>("LastModifierId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("LastModifierId");
-
-                    b.Property<Guid>("OutboundOrderId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("OutboundOrderItemId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("ReelNo")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasComment("鐩樺叿缂栧彿");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("ToLocation")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasComment("鐩爣搴撲綅");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("AppPickTasks", (string)null);
-                });
-
-            modelBuilder.Entity("Polaris.WMS.ProductionInbounds.ProductionInbound", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .HasMaxLength(40)
-                        .HasColumnType("character varying(40)")
-                        .HasColumnName("ConcurrencyStamp");
-
-                    b.Property<DateTime>("CreationTime")
-                        .HasColumnType("timestamp without time zone")
-                        .HasColumnName("CreationTime");
-
-                    b.Property<Guid?>("CreatorId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("CreatorId");
-
-                    b.Property<Guid?>("DeleterId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("DeleterId");
-
-                    b.Property<DateTime?>("DeletionTime")
-                        .HasColumnType("timestamp without time zone")
-                        .HasColumnName("DeletionTime");
-
-                    b.Property<Guid>("DepartmentId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("ExtraProperties")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("ExtraProperties");
-
-                    b.Property<int>("InboundType")
-                        .HasColumnType("integer");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false)
-                        .HasColumnName("IsDeleted");
-
-                    b.Property<DateTime?>("LastModificationTime")
-                        .HasColumnType("timestamp without time zone")
-                        .HasColumnName("LastModificationTime");
-
-                    b.Property<Guid?>("LastModifierId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("LastModifierId");
-
-                    b.Property<string>("OrderNo")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)");
-
-                    b.Property<Guid>("SourceDepartmentId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("SourceOrderNo")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("TargetWarehouseId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("WarehouseId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DepartmentId");
-
-                    b.HasIndex("OrderNo")
-                        .IsUnique();
-
-                    b.HasIndex("SourceOrderNo");
-
-                    b.HasIndex("WarehouseId");
-
-                    b.ToTable("AppProductionInbounds", (string)null);
-                });
-
-            modelBuilder.Entity("Polaris.WMS.ProductionInbounds.ProductionInboundDetail", b =>
+            modelBuilder.Entity("Polaris.WMS.TaskRouting.Domain.MoveTasks.MoveTask", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("ActualLocationId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("BatchNo")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)");
-
-                    b.Property<string>("CraftVersion")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)");
-
-                    b.Property<DateTime>("CreationTime")
-                        .HasColumnType("timestamp without time zone")
-                        .HasColumnName("CreationTime");
-
-                    b.Property<Guid?>("CreatorId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("CreatorId");
-
-                    b.Property<Guid?>("DeleterId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("DeleterId");
-
-                    b.Property<DateTime?>("DeletionTime")
-                        .HasColumnType("timestamp without time zone")
-                        .HasColumnName("DeletionTime");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false)
-                        .HasColumnName("IsDeleted");
-
-                    b.Property<DateTime?>("LastModificationTime")
-                        .HasColumnType("timestamp without time zone")
-                        .HasColumnName("LastModificationTime");
-
-                    b.Property<Guid?>("LastModifierId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("LastModifierId");
-
-                    b.Property<int>("LayerIndex")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("ProductId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("ProductionInboundId")
-                        .HasColumnType("uuid");
-
-                    b.Property<decimal>("Qty")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("numeric(18,4)");
-
-                    b.Property<Guid>("ReelId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("RelatedOrderNo")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)");
-
-                    b.Property<string>("RelatedOrderNoLineNo")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)");
-
-                    b.Property<string>("SN")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Unit")
-                        .IsRequired()
-                        .HasMaxLength(16)
-                        .HasColumnType("character varying(16)");
-
-                    b.Property<decimal>("Weight")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("numeric(18,4)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BatchNo");
-
-                    b.HasIndex("ProductionInboundId");
-
-                    b.HasIndex("ReelId");
-
-                    b.HasIndex("SN");
-
-                    b.ToTable("AppProductionInboundDetails", (string)null);
-                });
-
-            modelBuilder.Entity("Polaris.WMS.Tasks.MoveTask", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("ActualLocationId")
                         .HasColumnType("uuid")
                         .HasComment("实际落位库位Id（完成时由PDA扫码记录）");
 
@@ -1400,6 +1195,10 @@ namespace Polaris.WMS.Migrations
                         .HasMaxLength(40)
                         .HasColumnType("character varying(40)")
                         .HasColumnName("ConcurrencyStamp");
+
+                    b.Property<string>("ContainerCode")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<Guid>("ContainerId")
                         .HasColumnType("uuid")
@@ -1440,7 +1239,7 @@ namespace Polaris.WMS.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("LastModifierId");
 
-                    b.Property<Guid?>("SourceLocationId")
+                    b.Property<Guid>("SourceLocationId")
                         .HasColumnType("uuid")
                         .HasComment("源库位Id");
 
@@ -1469,127 +1268,6 @@ namespace Polaris.WMS.Migrations
                     b.HasIndex("TaskNo");
 
                     b.ToTable("AppMoveTasks", (string)null);
-                });
-
-            modelBuilder.Entity("Polaris.WMS.TransferOrders.TransferOrder", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .HasMaxLength(40)
-                        .HasColumnType("character varying(40)")
-                        .HasColumnName("ConcurrencyStamp");
-
-                    b.Property<DateTime>("CreationTime")
-                        .HasColumnType("timestamp without time zone")
-                        .HasColumnName("CreationTime");
-
-                    b.Property<Guid?>("CreatorId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("CreatorId");
-
-                    b.Property<Guid?>("DeleterId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("DeleterId");
-
-                    b.Property<DateTime?>("DeletionTime")
-                        .HasColumnType("timestamp without time zone")
-                        .HasColumnName("DeletionTime");
-
-                    b.Property<Guid>("DepartmentId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("ExtraProperties")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("ExtraProperties");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false)
-                        .HasColumnName("IsDeleted");
-
-                    b.Property<DateTime?>("LastModificationTime")
-                        .HasColumnType("timestamp without time zone")
-                        .HasColumnName("LastModificationTime");
-
-                    b.Property<Guid?>("LastModifierId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("LastModifierId");
-
-                    b.Property<string>("OrderNo")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<Guid>("SourceDepartmentId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("SourceWarehouseId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
-
-                    b.Property<Guid>("TargetWarehouseId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("WarehouseId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OrderNo")
-                        .IsUnique();
-
-                    b.ToTable("AppTransferOrders", (string)null);
-                });
-
-            modelBuilder.Entity("Polaris.WMS.TransferOrders.TransferOrderDetail", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("InventoryId")
-                        .HasColumnType("uuid");
-
-                    b.Property<bool>("IsCompleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<Guid>("ProductId")
-                        .HasColumnType("uuid");
-
-                    b.Property<decimal>("Qty")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("numeric(18,4)");
-
-                    b.Property<Guid>("ReelId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("SourceLocationId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("TargetLocationId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("TransferOrderId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("InventoryId");
-
-                    b.HasIndex("ReelId");
-
-                    b.HasIndex("TransferOrderId");
-
-                    b.ToTable("AppTransferOrderDetails", (string)null);
                 });
 
             modelBuilder.Entity("Polaris.WMS.Users.UserWarehouse", b =>
@@ -3475,94 +3153,33 @@ namespace Polaris.WMS.Migrations
                     b.ToTable("AbpTenantConnectionStrings", (string)null);
                 });
 
-            modelBuilder.Entity("Polaris.WMS.DataSync.DataSyncFieldMapping", b =>
+            modelBuilder.Entity("Polaris.WMS.Inbound.Domain.ProductionInbounds.ProductionInboundDetail", b =>
                 {
-                    b.HasOne("Polaris.WMS.DataSync.DataSyncTask", null)
-                        .WithMany("FieldMappings")
-                        .HasForeignKey("TaskId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Polaris.WMS.Inventorys.InventoryTransaction", b =>
-                {
-                    b.HasOne("Polaris.WMS.MasterData.Locations.Location", "FromLocation")
-                        .WithMany()
-                        .HasForeignKey("FromLocationId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("Polaris.WMS.MasterData.Warehouses.Warehouse", "FromWarehouse")
-                        .WithMany()
-                        .HasForeignKey("FromWarehouseId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("Polaris.WMS.MasterData.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Polaris.WMS.MasterData.Reels.Reel", "Reel")
-                        .WithMany()
-                        .HasForeignKey("ReelId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Polaris.WMS.MasterData.Locations.Location", "ToLocation")
-                        .WithMany()
-                        .HasForeignKey("ToLocationId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("Polaris.WMS.MasterData.Warehouses.Warehouse", "ToWarehouse")
-                        .WithMany()
-                        .HasForeignKey("ToWarehouseId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("FromLocation");
-
-                    b.Navigation("FromWarehouse");
-
-                    b.Navigation("Product");
-
-                    b.Navigation("Reel");
-
-                    b.Navigation("ToLocation");
-
-                    b.Navigation("ToWarehouse");
-                });
-
-            modelBuilder.Entity("Polaris.WMS.MasterData.Reels.Reel", b =>
-                {
-                    b.HasOne("Polaris.WMS.MasterData.Locations.Location", null)
-                        .WithMany()
-                        .HasForeignKey("CurrentLocationId");
-                });
-
-            modelBuilder.Entity("Polaris.WMS.Outbound.OutboundOrderItem", b =>
-                {
-                    b.HasOne("Polaris.WMS.Outbound.OutboundOrder", null)
-                        .WithMany("Items")
-                        .HasForeignKey("OutboundOrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Polaris.WMS.ProductionInbounds.ProductionInboundDetail", b =>
-                {
-                    b.HasOne("Polaris.WMS.ProductionInbounds.ProductionInbound", null)
+                    b.HasOne("Polaris.WMS.Inbound.Domain.ProductionInbounds.ProductionInbound", null)
                         .WithMany("Details")
                         .HasForeignKey("ProductionInboundId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Polaris.WMS.TransferOrders.TransferOrderDetail", b =>
+            modelBuilder.Entity("Polaris.WMS.InventoryManage.Domain.TransferOrders.TransferOrderDetail", b =>
                 {
-                    b.HasOne("Polaris.WMS.TransferOrders.TransferOrder", null)
+                    b.HasOne("Polaris.WMS.InventoryManage.Domain.TransferOrders.TransferOrder", null)
                         .WithMany("Details")
                         .HasForeignKey("TransferOrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Polaris.WMS.InventoryManage.Domain.inventories.InventoryTransaction", b =>
+                {
+                    b.HasOne("Polaris.WMS.InventoryManage.Domain.Reels.Reel", "Reel")
+                        .WithMany()
+                        .HasForeignKey("ReelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Reel");
                 });
 
             modelBuilder.Entity("Volo.Abp.AuditLogging.AuditLogAction", b =>
@@ -3716,22 +3333,12 @@ namespace Polaris.WMS.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Polaris.WMS.DataSync.DataSyncTask", b =>
-                {
-                    b.Navigation("FieldMappings");
-                });
-
-            modelBuilder.Entity("Polaris.WMS.Outbound.OutboundOrder", b =>
-                {
-                    b.Navigation("Items");
-                });
-
-            modelBuilder.Entity("Polaris.WMS.ProductionInbounds.ProductionInbound", b =>
+            modelBuilder.Entity("Polaris.WMS.Inbound.Domain.ProductionInbounds.ProductionInbound", b =>
                 {
                     b.Navigation("Details");
                 });
 
-            modelBuilder.Entity("Polaris.WMS.TransferOrders.TransferOrder", b =>
+            modelBuilder.Entity("Polaris.WMS.InventoryManage.Domain.TransferOrders.TransferOrder", b =>
                 {
                     b.Navigation("Details");
                 });

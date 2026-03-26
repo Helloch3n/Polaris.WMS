@@ -9,6 +9,7 @@ public class ReceiveReelArgs
 {
     public string OrderNo { get; set; }
     public Guid ReelId { get; set; }
+    public string ReelCode { get; set; }
     public Guid LocationId { get; set; }
     public List<ReceiveReelItemArgs> Items { get; set; } = new();
 }

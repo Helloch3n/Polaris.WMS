@@ -9,9 +9,9 @@ public class ExternalLocationProvider(
     ILocationIntegrationService locationIntegrationService // 注入主数据的服务
 ) : IExternalLocationProvider, ITransientDependency // 实现任务模块的端口
 {
-    public async Task<Guid> FindBestLocationIdAsync(Guid productId)
+    public async Task<Guid> FindBestLocationIdAsync(Guid zoneId)
     {
-        return await locationIntegrationService.GetBestAvailableLocationIdAsync(productId);
+        return await locationIntegrationService.GetBestAvailableLocationIdAsync(zoneId);
     }
 
     public async Task<Guid> GetZoneIdByLocationIdAsync(Guid locationId)
