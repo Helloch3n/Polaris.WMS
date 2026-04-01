@@ -1,4 +1,5 @@
-﻿using Polaris.WMS.MasterData.Reels;
+﻿using Polaris.WMS.Inventories.Reels;
+using Polaris.WMS.MasterData.Reels;
 using Volo.Abp.Application.Dtos;
 
 namespace Polaris.WMS.InventoryManage.Application.Contracts.Reels.Dtos

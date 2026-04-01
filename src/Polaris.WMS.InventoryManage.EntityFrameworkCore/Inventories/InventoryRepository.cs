@@ -16,7 +16,7 @@ namespace Polaris.WMS.InventoryManage.EntityFrameworkCore.Inventories
         {
             return await (await GetDbSetAsync())
                 .Where(x => x.ReelId == reelId)
-                .MaxAsync(x => (int?)x.Index) ?? 0;
+                .MaxAsync(x => (int?)x.LayerIndex) ?? 0;
         }
 
         // public async Task<List<Inventory>> GetAllocatableInventoriesAsync(string productCode, decimal targetLength)

@@ -1,4 +1,5 @@
-﻿using Polaris.WMS.Inventories.Invnentory;
+﻿using System.Runtime.InteropServices;
+using Polaris.WMS.Inventories.Invnentory;
 using Polaris.WMS.Inventories.Ivnentory;
 
 namespace Polaris.WMS.InventoryManage.Application.Contracts.Inventories.Dtos
@@ -92,6 +93,8 @@ namespace Polaris.WMS.InventoryManage.Application.Contracts.Inventories.Dtos
         /// 层号。
         /// </summary>
         public int LayerIndex { get; set; }
+
+        public int Sequence { get; set; }
 
         /// <summary>
         /// 盘号。

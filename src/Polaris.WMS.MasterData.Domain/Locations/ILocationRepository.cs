@@ -9,6 +9,7 @@ namespace Polaris.WMS.MasterData.Domain.Locations
         Task<List<Location>> GetListByWarehouseIdAsync(Guid warehouseId);
         Task<string?> GetCodeByIdAsync(Guid id);
         Task<Dictionary<Guid, string>> GetCodeMapByIdsAsync(List<Guid> ids);
+        Task<Location> FindByCodeAsync(string code);
     }
 }
 

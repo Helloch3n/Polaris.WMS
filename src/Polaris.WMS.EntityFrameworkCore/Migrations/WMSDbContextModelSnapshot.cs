@@ -471,10 +471,6 @@ namespace Polaris.WMS.Migrations
                     b.Property<DateTime>("FifoDate")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<int>("Index")
-                        .HasColumnType("integer")
-                        .HasColumnName("Layer_Index");
-
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
@@ -488,6 +484,10 @@ namespace Polaris.WMS.Migrations
                     b.Property<Guid?>("LastModifierId")
                         .HasColumnType("uuid")
                         .HasColumnName("LastModifierId");
+
+                    b.Property<int>("LayerIndex")
+                        .HasColumnType("integer")
+                        .HasColumnName("LayerIndex");
 
                     b.Property<decimal>("LockedQuantity")
                         .HasPrecision(18, 4)
@@ -515,6 +515,9 @@ namespace Polaris.WMS.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+
+                    b.Property<int>("Sequence")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -756,12 +759,12 @@ namespace Polaris.WMS.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Code")
+                        .IsUnique();
+
                     b.HasIndex("WarehouseId");
 
                     b.HasIndex("ZoneId");
-
-                    b.HasIndex("ZoneId", "Code")
-                        .IsUnique();
 
                     b.ToTable("AppLocations", (string)null);
                 });
@@ -1185,6 +1188,10 @@ namespace Polaris.WMS.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("ActualLocationCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<Guid>("ActualLocationId")
                         .HasColumnType("uuid")
                         .HasComment("实际落位库位Id（完成时由PDA扫码记录）");
@@ -1239,6 +1246,10 @@ namespace Polaris.WMS.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("LastModifierId");
 
+                    b.Property<string>("SourceLocationCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<Guid>("SourceLocationId")
                         .HasColumnType("uuid")
                         .HasComment("源库位Id");
@@ -1246,6 +1257,10 @@ namespace Polaris.WMS.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("integer")
                         .HasComment("任务状态（枚举）");
+
+                    b.Property<string>("TargetLocationCode")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<Guid>("TargetLocationId")
                         .HasColumnType("uuid")

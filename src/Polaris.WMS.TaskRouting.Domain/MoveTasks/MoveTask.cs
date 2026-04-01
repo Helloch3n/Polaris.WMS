@@ -20,11 +20,17 @@ public class MoveTask : FullAuditedAggregateRoot<Guid>
 
     public Guid SourceLocationId { get; private set; }
 
+    public string SourceLocationCode { get; private set; }
+
     /// <summary> 计划目标库位 (系统推荐去的地方，比如 QC大区) </summary>
     public Guid TargetLocationId { get; private set; }
 
+    public string TargetLocationCode { get; private set; }
+
     /// <summary> 实际落位库位 (完成时由工人拿 PDA 真实扫出来的条码) </summary>
     public Guid ActualLocationId { get; private set; }
+
+    public string ActualLocationCode { get; private set; }
 
     protected MoveTask()
     {
@@ -32,7 +38,9 @@ public class MoveTask : FullAuditedAggregateRoot<Guid>
 
     internal MoveTask(Guid id, string taskNo, MoveTaskType taskType, Guid containerId, string containerCode,
         Guid sourceLocationId,
-        Guid targetLocationId)
+        string sourceLocationCode,
+        Guid targetLocationId,
+        string targetLocationCode)
         : base(id)
     {
         TaskNo = taskNo;
@@ -40,15 +48,20 @@ public class MoveTask : FullAuditedAggregateRoot<Guid>
         ContainerId = containerId;
         ContainerCode = containerCode;
         SourceLocationId = sourceLocationId;
+        SourceLocationCode = sourceLocationCode;
         TargetLocationId = targetLocationId;
+        TargetLocationCode = targetLocationCode;
         Status = MoveTaskStatus.Pending; // 初始状态必为待执行
     }
 
     public static MoveTask Create(Guid id, string taskNo, MoveTaskType taskType, Guid containerId, string containerCode,
         Guid sourceLocationId,
-        Guid targetLocationId)
+        string sourceLocationCode,
+        Guid targetLocationId,
+        string targetLocationCode)
     {
-        return new MoveTask(id, taskNo, taskType, containerId, containerCode, sourceLocationId, targetLocationId);
+        return new MoveTask(id, taskNo, taskType, containerId, containerCode, sourceLocationId, sourceLocationCode,
+            targetLocationId, targetLocationCode);
     }
 
     // 认领任务 (可选步骤，防止两个叉车工抢同一个盘子)
@@ -62,11 +75,24 @@ public class MoveTask : FullAuditedAggregateRoot<Guid>
     // 完成任务
     public void Complete(Guid actualLocationId)
     {
-        if (Status == MoveTaskStatus.Completed || Status == MoveTaskStatus.Cancelled)
-            throw new InvalidOperationException($"任务 {TaskNo} 已结束，无法再次完成！");
+        if (Status == MoveTaskStatus.Completed)
+        {
+            return; // 防呆：已经完成的不能再完成
+        }
 
         ActualLocationId = actualLocationId;
         Status = MoveTaskStatus.Completed;
+
+        // 挂载完成事件，等待工作单元提交时抛出
+        AddLocalEvent(new MoveTaskCompletedEto
+        {
+            TaskId = this.Id,
+            ContainerId = this.ContainerId,
+            ContainerCode = this.ContainerCode,
+            FromLocationId = this.SourceLocationId,
+            ActualLocationId = this.ActualLocationId,
+            TaskType = this.TaskType
+        });
     }
 
     public void Cancel()

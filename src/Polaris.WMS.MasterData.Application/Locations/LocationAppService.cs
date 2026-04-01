@@ -84,7 +84,7 @@ namespace Polaris.WMS.MasterData.Application.Locations
             var entity = await locationManager.CreateAsync(
                 input.WarehouseId,
                 input.ZoneId,
-                input.Code,
+                input.WarehouseCode + "-" + input.Code,
                 input.Aisle,
                 input.Rack,
                 input.Level,
@@ -172,4 +172,3 @@ namespace Polaris.WMS.MasterData.Application.Locations
         }
     }
 }
-

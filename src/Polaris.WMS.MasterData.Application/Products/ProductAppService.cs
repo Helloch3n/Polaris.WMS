@@ -1,4 +1,5 @@
 ﻿using Polaris.WMS.MasterData.Application.Contracts.Products;
+using Polaris.WMS.MasterData.Application.Contracts.Products.Dtos;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Domain.Repositories;
@@ -75,7 +76,7 @@ namespace Polaris.WMS.MasterData.Application.Products
                     .OrderBy(x => x.Code)
                     .PageBy(input.SkipCount, input.MaxResultCount));
 
-            var dtos = ObjectMapper.Map<System.Collections.Generic.List<Product>, System.Collections.Generic.List<ProductDto>>(items);
+            var dtos = ObjectMapper.Map<List<Product>, List<ProductDto>>(items);
 
             return new PagedResultDto<ProductDto>(totalCount, dtos);
         }

@@ -218,9 +218,9 @@ namespace Polaris.WMS.InventoryManage.Application.Reels
         {
             var queryable = await Repository.GetQueryableAsync();
 
-            if (!string.IsNullOrWhiteSpace(input.ReelCode))
+            if (!string.IsNullOrWhiteSpace(input.ContainerCode))
             {
-                queryable = queryable.Where(x => x.ReelNo == input.ReelCode);
+                queryable = queryable.Where(x => x.ReelNo == input.ContainerCode);
             }
 
             var totalCount = await AsyncExecuter.CountAsync(queryable);

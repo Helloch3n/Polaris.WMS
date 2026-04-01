@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Polaris.WMS.MasterData.Domain.Locations;
+using Volo.Abp;
 using Volo.Abp.Domain.Repositories.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
 
@@ -11,7 +12,18 @@ namespace Polaris.WMS.MasterData.EntityFrameworkCore.Locations
         public async Task<Location?> GetByCodeAsync(string code)
         {
             var queryable = await GetQueryableAsync();
-            return await queryable.FirstOrDefaultAsync(x => x.Code == code);
+            var location = await queryable.FirstOrDefaultAsync(x => x.Code == code);
+            if (location == null)
+            {
+                throw new UserFriendlyException($"未找到编码为 {code} 的库位！");
+            }
+
+            return location;
+        }
+        public async Task<Location> FindByCodeAsync(string code)
+        {
+            var dbSet = await GetDbSetAsync();
+            return await dbSet.FirstOrDefaultAsync(x => x.Code == code);
         }
 
         public async Task<List<Location>> GetListByZoneIdAsync(Guid zoneId)
@@ -49,5 +61,3 @@ namespace Polaris.WMS.MasterData.EntityFrameworkCore.Locations
         }
     }
 }
-
-

@@ -74,7 +74,7 @@ namespace Polaris.WMS.InventoryManage.Application.Inventories
 
             query = query
                 .OrderBy(x => x.ReelId)
-                .ThenByDescending(x => x.Index)
+                .ThenByDescending(x => x.LayerIndex)
                 .PageBy(input.SkipCount, input.MaxResultCount);
 
             var items = await AsyncExecuter.ToListAsync(query);

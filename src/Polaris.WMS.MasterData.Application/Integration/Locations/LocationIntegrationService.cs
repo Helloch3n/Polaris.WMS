@@ -17,7 +17,7 @@ public class LocationIntegrationService(
     LocationManager locationManager
 ) : ApplicationService, ILocationIntegrationService
 {
-    public async Task<Guid> GetBestAvailableLocationIdAsync(Guid zoneId)
+    public async Task<LocationIntegrationDto> GetBestAvailableLocationIdAsync(Guid zoneId)
     {
         // 查找可用库位
         var location = await locationRepository.FirstOrDefaultAsync(x =>
@@ -29,7 +29,12 @@ public class LocationIntegrationService(
             throw new UserFriendlyException($"在库区 {zoneId} 中没有找到任何可用（空闲或部分占用）的库位！");
         }
 
-        return location.Id;
+        return new LocationIntegrationDto
+        {
+            Id = location.Id,
+            Code = location.Code,
+            WarehouseId = location.WarehouseId
+        };
     }
 
     public async Task<Guid> GetZoneIdByLocationIdAsync(Guid locationId)
@@ -41,6 +46,11 @@ public class LocationIntegrationService(
     public async Task<LocationIntegrationDto> GetAsync(Guid id)
     {
         var location = await locationRepository.GetAsync(id);
+        if (location == null)
+        {
+            throw new UserFriendlyException($"未找到Id为{id}的库位");
+        }
+
         return new LocationIntegrationDto
         {
             Id = location.Id,
@@ -96,5 +106,26 @@ public class LocationIntegrationService(
         return await AsyncExecuter.ToListAsync(query
             .Where(x => x.WarehouseId == warehouseId)
             .Select(x => x.Id));
+    }
+
+    public async Task<LocationIntegrationDto> GetLocationInfoByCodeAsync(string code)
+    {
+        var query = await locationRepository.GetQueryableAsync();
+
+        var location = await AsyncExecuter.FirstOrDefaultAsync(query
+            .Where(x => x.Code == code));
+
+        if (location == null)
+        {
+            throw new UserFriendlyException($"系统不存在编码为 '{code}' 的库位!");
+        }
+
+        return new LocationIntegrationDto()
+        {
+            Id = location.Id,
+            Code = location.Code,
+            WarehouseId = location.WarehouseId,
+            Status = location.Status
+        };
     }
 }

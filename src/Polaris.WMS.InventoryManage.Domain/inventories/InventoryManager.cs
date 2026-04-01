@@ -31,6 +31,8 @@ namespace Polaris.WMS.InventoryManage.Domain.inventories
         {
             //获取盘具信息
             var reel = await reelRepository.GetAsync(args.ReelId);
+            //获取库位信息
+            var location = await ExternalLocationProvider.GetLocationAsync(args.LocationId);
             //修改盘具为已占用
             reel.SetOccupied();
             //刷新库位状态
@@ -73,11 +75,12 @@ namespace Polaris.WMS.InventoryManage.Domain.inventories
                     ContainerId = args.ReelId,
                     ContainerCode = reel.ReelNo,
                     CurrentLocationId = args.LocationId,
+                    CurrentLocationCode = location.Code
                 });
 
                 //生成库存流水
                 Guid? warehouseId = null;
-                var location = await ExternalLocationProvider.GetLocationAsync(args.LocationId);
+                //var location = await ExternalLocationProvider.GetLocationAsync(args.LocationId);
                 warehouseId = location.WarehouseId;
 
                 var input = new CreateInventoryTranscationArgs()
@@ -103,8 +106,7 @@ namespace Polaris.WMS.InventoryManage.Domain.inventories
                     Remark = "入库"
                 };
 
-                var transaction = await inventoryTransactionManager.CreateAsync(input);
-                await transactionRepository.InsertAsync(transaction);
+                await inventoryTransactionManager.CreateAsync(input);
             }
         }
 
@@ -166,8 +168,7 @@ namespace Polaris.WMS.InventoryManage.Domain.inventories
                 Remark = "库存增加"
             };
 
-            var transaction = await inventoryTransactionManager.CreateAsync(createArgs);
-            await transactionRepository.InsertAsync(transaction);
+            await inventoryTransactionManager.CreateAsync(createArgs);
         }
 
         /// <summary>
@@ -178,11 +179,11 @@ namespace Polaris.WMS.InventoryManage.Domain.inventories
         {
             if (qty <= 0) throw new BusinessException("WMS:QtyMustBePositive").WithData("Qty", qty);
 
-            var inventory = await inventoryRepository.GetAsync(inventoryId);
-            //if (inventory.Status == InventoryStatus.Locked)
-            //{
-            //    throw new BusinessException(WMSDomainErrorCodes.InventoryIsLocked);
-            //}
+            var inventory = await inventoryRepository.GetAsync(x => x.Id == inventoryId);
+            if (inventory == null)
+            {
+                throw new UserFriendlyException($"未找到Id为{inventoryId}的库存");
+            }
 
             // 1. 跨聚合校验：防超扣
             if (inventory.Quantity < qty)
@@ -204,6 +205,11 @@ namespace Polaris.WMS.InventoryManage.Domain.inventories
             {
                 //var location = await locationRepository.GetAsync(locationId.Value);
                 var location = await ExternalLocationProvider.GetLocationAsync(locationId.Value);
+                if (location == null)
+                {
+                    throw new UserFriendlyException($"未找到Id为{locationId.Value}的库位");
+                }
+
                 warehouseId = location.WarehouseId;
             }
 
@@ -230,8 +236,7 @@ namespace Polaris.WMS.InventoryManage.Domain.inventories
                 Remark = "库存扣减"
             };
 
-            var transaction = await inventoryTransactionManager.CreateAsync(deductArgs);
-            await transactionRepository.InsertAsync(transaction);
+            await inventoryTransactionManager.CreateAsync(deductArgs);
 
             // 4. 终极逻辑：如果库存归零，处理盘具和库位状态
             if (inventory.Quantity == 0)

@@ -1,4 +1,4 @@
-﻿namespace Polaris.WMS.MasterData.Reels
+﻿namespace Polaris.WMS.Inventories.Reels
 {
     /// <summary>
     /// 盘具状态。

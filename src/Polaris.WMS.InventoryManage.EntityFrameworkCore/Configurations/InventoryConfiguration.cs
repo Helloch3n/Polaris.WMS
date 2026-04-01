@@ -18,7 +18,8 @@ namespace Polaris.WMS.InventoryManage.EntityFrameworkCore.Configurations
             builder.Property(x => x.Quantity).HasPrecision(18, 4);
             builder.Property(x => x.LockedQuantity).HasPrecision(18, 4);
             builder.Property(x => x.Weight).HasPrecision(18, 4);
-            builder.Property(x => x.Index).HasColumnName("Layer_Index");
+            builder.Property(x => x.LayerIndex).HasColumnName("LayerIndex");
+            builder.Property(x => x.Sequence);
 
             builder.Property(x => x.SN)
                 .IsRequired()

@@ -6,6 +6,7 @@ namespace Polaris.WMS.MasterData.Application.Contracts.Locations.Dtos
     {
         public Guid ZoneId { get; set; }
         public Guid WarehouseId { get; set; }
+        public string WarehouseCode { get; set;}
         public string Code { get; set; }
         public string Aisle { get; set; }
         public string Rack { get; set; }
@@ -19,4 +20,3 @@ namespace Polaris.WMS.MasterData.Application.Contracts.Locations.Dtos
         public bool AllowMixedBatches { get; set; }
     }
 }
-

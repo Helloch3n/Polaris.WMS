@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using Volo.Abp.EventBus;
 
 namespace Polaris.WMS.Inventories.Invnentory.Events;
@@ -14,12 +15,12 @@ public class HoldInventoryCreatedEto
     /// </summary>
     public Guid ContainerId { get; set; }
 
-    public string? ContainerCode { get; set; }
+    public string ContainerCode { get; set; }
 
     /// <summary>
     /// 目前所在的物理位置 (机台收线位)
     /// </summary>
     public Guid CurrentLocationId { get; set; }
 
-    public string? CurrentLocationCode { get; set; }
+    public string CurrentLocationCode { get; set; }
 }

@@ -1,4 +1,5 @@
 ﻿using Polaris.WMS.MasterData.Application.Contracts.Products;
+using Polaris.WMS.MasterData.Application.Contracts.Products.Dtos;
 using Riok.Mapperly.Abstractions;
 using Volo.Abp.Mapperly;
 

@@ -95,7 +95,7 @@ namespace Polaris.WMS.MasterData.Domain.Locations
             }
 
             // 3. 校验库位编码在仓库内唯一
-            var existing = await locationRepository.GetByCodeAsync(code);
+            var existing = await locationRepository.FindByCodeAsync(code);
             if (existing != null && existing.WarehouseId == warehouseId)
             {
                 throw new BusinessException("WMS:LocationCodeAlreadyExists")

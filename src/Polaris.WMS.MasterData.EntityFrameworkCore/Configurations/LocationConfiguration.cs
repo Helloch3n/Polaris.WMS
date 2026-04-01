@@ -60,7 +60,8 @@ namespace Polaris.WMS.MasterData.EntityFrameworkCore.Configurations
                 .HasDefaultValue(false)
                 .HasComment("是否允许混放不同批次");
 
-            builder.HasIndex(x => new { x.ZoneId, x.Code }).IsUnique();
+            //builder.HasIndex(x => new { x.ZoneId, x.Code }).IsUnique();
+            builder.HasIndex(x => x.Code).IsUnique();
             builder.HasIndex(x => x.WarehouseId);
             builder.HasIndex(x => x.ZoneId);
         }

@@ -28,7 +28,16 @@
         /// <summary>
         /// 库存调整（例如盘点差异或手工修正）
         /// </summary>
-        Adjust = 3
+        Adjust = 3,
+
+        /// <summary>
+        /// 材料投入
+        /// </summary>
+        Feed = 4,
+
+        /// <summary>
+        /// 材料退回
+        /// </summary>
+        Return = 5
     }
 }
-

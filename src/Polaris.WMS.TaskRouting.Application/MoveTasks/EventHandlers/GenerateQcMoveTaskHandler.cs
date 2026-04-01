@@ -27,7 +27,7 @@ public class GenerateQcMoveTaskHandler(
         );
 
         // 2. 微观计算：找格子
-        Guid targetLocationId = await allocationStrategy.AllocateLocationAsync(
+        var targetLocationInfo = await allocationStrategy.AllocateLocationAsync(
             targetZoneId
         );
 
@@ -37,6 +37,8 @@ public class GenerateQcMoveTaskHandler(
             eventData.ContainerId, // Eto 里的属性
             eventData.ContainerCode, // Eto 里的属性
             eventData.CurrentLocationId,
-            targetLocationId);
+            eventData.CurrentLocationCode,
+            targetLocationInfo.Id,
+            targetLocationInfo.Code);
     }
 }

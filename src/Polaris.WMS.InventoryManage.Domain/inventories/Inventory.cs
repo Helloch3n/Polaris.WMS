@@ -21,7 +21,9 @@ namespace Polaris.WMS.InventoryManage.Domain.inventories
         public InventoryStatus Status { get; private set; }
         public string? CraftVersion { get; private set; }
         public DateTime FifoDate { get; private set; }
-        public int Index { get; private set; }
+        public int LayerIndex { get; private set; }
+
+        public int Sequence { get; private set; }
         public string? RelatedOrderNo { get; private set; }
         public string? RelatedOrderLineNo { get; private set; }
 
@@ -60,7 +62,7 @@ namespace Polaris.WMS.InventoryManage.Domain.inventories
             Status = status;
             CraftVersion = craftVersion;
             FifoDate = fifoDate;
-            Index = layerIndex;
+            LayerIndex = layerIndex;
         }
 
         /// <summary>

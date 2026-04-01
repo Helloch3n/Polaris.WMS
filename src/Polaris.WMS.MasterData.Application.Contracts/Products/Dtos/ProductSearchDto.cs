@@ -1,6 +1,6 @@
 ﻿using Volo.Abp.Application.Dtos;
 
-namespace Polaris.WMS.MasterData.Application.Contracts.Products
+namespace Polaris.WMS.MasterData.Application.Contracts.Products.Dtos
 {
     public class ProductSearchDto : PagedAndSortedResultRequestDto
     {

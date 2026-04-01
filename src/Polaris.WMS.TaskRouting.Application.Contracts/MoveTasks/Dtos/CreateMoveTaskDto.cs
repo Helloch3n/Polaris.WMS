@@ -15,14 +15,3 @@ public class CreateMoveTaskDto
 
     public MoveTaskType TaskType { get; set; }
 }
-
-public class CompleteMoveTaskDto
-{
-    [Required] public Guid TaskId { get; set; }
-
-    /// <summary>
-    /// 叉车工实际扫描的墙上大区标牌 ID，或具体的货架格 ID
-    /// </summary>
-    [Required]
-    public Guid ScannedLocationId { get; set; }
-}

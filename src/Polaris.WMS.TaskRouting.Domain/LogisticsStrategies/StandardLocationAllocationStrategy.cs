@@ -11,9 +11,9 @@ public class StandardLocationAllocationStrategy(
     IExternalLocationProvider externalLocationProvider)
     : ILocationAllocationStrategy, ITransientDependency
 {
-    public async Task<Guid> AllocateLocationAsync(Guid targetZoneId)
+    public async Task<ExternalLocationInfo> AllocateLocationAsync(Guid targetZoneId)
     {
-        var locationId = await externalLocationProvider.FindBestLocationIdAsync(targetZoneId);
-        return locationId;
+        var locationInfo = await externalLocationProvider.FindBestLocationIdAsync(targetZoneId);
+        return locationInfo;
     }
 }

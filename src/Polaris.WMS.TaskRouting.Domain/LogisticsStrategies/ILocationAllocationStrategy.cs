@@ -1,6 +1,8 @@
-﻿namespace Polaris.WMS.TaskRouting.Domain.LogisticsStrategies;
+﻿using Polaris.WMS.TaskRouting.Domain.Integration.MasterData;
+
+namespace Polaris.WMS.TaskRouting.Domain.LogisticsStrategies;
 
 public interface ILocationAllocationStrategy
 {
-    Task<Guid> AllocateLocationAsync(Guid targetZoneId);
+    Task<ExternalLocationInfo> AllocateLocationAsync(Guid targetZoneId);
 }

@@ -2,6 +2,7 @@ using Polaris.WMS.Inventories.Invnentory;
 using Polaris.WMS.Inventories.Ivnentory;
 using Polaris.WMS.InventoryManage.Domain.inventories.Args;
 using Volo.Abp;
+using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Domain.Services;
 
 namespace Polaris.WMS.InventoryManage.Domain.inventories
@@ -9,12 +10,14 @@ namespace Polaris.WMS.InventoryManage.Domain.inventories
     /// <summary>
     /// 库存流水领域服务，负责库存流水创建规则。
     /// </summary>
-    public class InventoryTransactionManager : DomainService
+    public class InventoryTransactionManager(
+        IRepository<InventoryTransaction, Guid> transactionRepository
+    ) : DomainService
     {
         /// <summary>
         /// 创建库存流水实体（仅构建实体，不执行持久化）。
         /// </summary>
-        public Task<InventoryTransaction> CreateAsync(CreateInventoryTranscationArgs args)
+        public async Task<InventoryTransaction> CreateAsync(CreateInventoryTranscationArgs args)
         {
             if (args.Quantity <= 0)
             {
@@ -46,8 +49,8 @@ namespace Polaris.WMS.InventoryManage.Domain.inventories
                 args.CraftVersion,
                 args.Status,
                 args.Remark);
-
-            return Task.FromResult(transaction);
+            await transactionRepository.InsertAsync(transaction);
+            return transaction;
         }
     }
 }

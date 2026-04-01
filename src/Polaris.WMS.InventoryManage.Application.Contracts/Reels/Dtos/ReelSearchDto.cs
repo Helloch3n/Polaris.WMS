@@ -4,7 +4,7 @@ namespace Polaris.WMS.InventoryManage.Application.Contracts.Reels.Dtos
 {
     public class ReelSearchDto : PagedAndSortedResultRequestDto
     {
-        public string? ReelCode { get; set; }
+        public string? ContainerCode { get; set; }
     }
 }
 
