@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Polaris.WMS.Inbound.Domain.Asns;
 using Polaris.WMS.Inbound.Domain.ProductionInbounds;
+using Polaris.WMS.Inbound.Domain.PurchaseOrders;
 using Volo.Abp.Data;
 using Volo.Abp.EntityFrameworkCore;
 
@@ -13,6 +15,10 @@ public class InboundDbContext : AbpDbContext<InboundDbContext>,IInboundDbContext
     // 声明当前模块管辖的实体
     public DbSet<ProductionInbound> ProductionInbounds { get; set; }
     public DbSet<ProductionInboundDetail> ProductionInboundDetails { get; set; }
+    public DbSet<PurchaseOrder>  PurchaseOrders { get; set; }
+    public DbSet<PurchaseOrderDetail> PurchaseOrderDetails { get; set; }
+    public DbSet<AdvancedShippingNotice> Asns { get; set; }
+    public DbSet<AsnDetail> AsnDetails { get; set; }
 
     public InboundDbContext(DbContextOptions<InboundDbContext> options)
         : base(options)

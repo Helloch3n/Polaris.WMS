@@ -1,7 +1,7 @@
 ﻿using Volo.Abp.Application;
 using Volo.Abp.Modularity;
 
-namespace Polaris.WMS.Inound.Application.Contracts;
+namespace Polaris.WMS.Inbound.Application.Contracts;
 
 [DependsOn(
     typeof(AbpDddApplicationContractsModule),

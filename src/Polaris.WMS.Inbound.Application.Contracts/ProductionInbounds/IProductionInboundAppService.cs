@@ -1,8 +1,8 @@
-﻿using Polaris.WMS.Inound.Application.Contracts.ProductionInbounds.Dtos;
+﻿using Polaris.WMS.Inbound.Application.Contracts.ProductionInbounds.Dtos;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
 
-namespace Polaris.WMS.Inound.Application.Contracts.ProductionInbounds
+namespace Polaris.WMS.Inbound.Application.Contracts.ProductionInbounds
 {
     public interface IProductionInboundAppService : IApplicationService
     {

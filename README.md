@@ -57,3 +57,16 @@ You can see the following resources to learn more about your solution and the AB
 * [Web Application Development Tutorial](https://abp.io/docs/latest/tutorials/book-store/part-1)
 * [Application Startup Template](https://abp.io/docs/latest/startup-templates/application/index)
 
+### Data Base
+
+migration
+
+```
+dotnet ef migrations add addasn --project src/Polaris.WMS.EntityFrameworkCore --startup-project src/Polaris.WMS.Web  
+```
+
+update
+
+```
+dotnet ef database update --project src/Polaris.WMS.EntityFrameworkCore --startup-project src/Polaris.WMS.Web    
+```

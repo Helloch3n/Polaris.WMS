@@ -1,7 +1,7 @@
 ﻿using Polaris.WMS.ProductionInbounds;
 using Volo.Abp.Application.Dtos;
 
-namespace Polaris.WMS.Inound.Application.Contracts.ProductionInbounds.Dtos
+namespace Polaris.WMS.Inbound.Application.Contracts.ProductionInbounds.Dtos
 {
     /// <summary>
     /// 生产入库单分页查询参数

@@ -1,4 +1,5 @@
 ﻿using Polaris.WMS.PurchaseOrders;
+using Volo.Abp;
 using Volo.Abp.Domain.Entities.Auditing;
 
 namespace Polaris.WMS.Inbound.Domain.PurchaseOrders;
@@ -51,7 +52,7 @@ public class PurchaseOrder : FullAuditedAggregateRoot<Guid>
     /// </summary>
     private readonly List<PurchaseOrderDetail> _details = new();
 
-    public IReadOnlyCollection<PurchaseOrderDetail> Details() => _details;
+    public IReadOnlyCollection<PurchaseOrderDetail> Details => _details;
 
     /// <summary>
     /// EF Core 使用的受保护构造函数，保留用于 ORM 反射创建实体。
@@ -59,5 +60,96 @@ public class PurchaseOrder : FullAuditedAggregateRoot<Guid>
     /// </summary>
     protected PurchaseOrder()
     {
+    }
+    
+    /// <summary>
+    /// 构造函数：创建时必须具备核心主数据
+    /// </summary>
+    public PurchaseOrder(Guid id, string poNo, Guid supplierId, string supplierCode, string supplierName, DateTime orderDate, DateTime? expectedDeliveryDate = null)
+        : base(id)
+    {
+        Check.NotNullOrWhiteSpace(poNo, nameof(poNo));
+        Check.NotNullOrWhiteSpace(supplierCode, nameof(supplierCode));
+
+        PoNo = poNo;
+        SupplierId = supplierId;
+        SupplierCode = supplierCode;
+        SupplierName = supplierName;
+        OrderDate = orderDate;
+        ExpectedDeliveryDate = expectedDeliveryDate;
+        Status = PurchaseOrderStatus.Open; // 初始化为开放状态
+    }
+    
+    /// <summary>
+    /// 通过聚合根添加明细，保护聚合内的一致性
+    /// </summary>
+    public PurchaseOrderDetail AddDetail(Guid detailId, int lineNo, Guid productId, string productCode, string productName, string uom, decimal expectedQty, bool isQualityCheckRequired)
+    {
+        if (_details.Any(x => x.LineNo == lineNo))
+        {
+            throw new UserFriendlyException($"采购单 {PoNo} 已存在行号为 {lineNo} 的明细！");
+        }
+
+        var detail = new PurchaseOrderDetail(detailId, Id, lineNo, productId, productCode, productName, uom, expectedQty, isQualityCheckRequired);
+        _details.Add(detail);
+        return detail;
+    }
+    
+    /// <summary>
+    /// 状态流转：根据明细的收货情况，推演 PO 的总体状态。
+    /// </summary>
+    public void RefreshStatus()
+    {
+        if (Status == PurchaseOrderStatus.Closed) 
+            return; // 强制关闭的单据不再自动流转
+
+        if (!_details.Any()) return;
+
+        bool isAllCompleted = _details.All(x => x.ReceivedQty >= x.ExpectedQty);
+        bool isAnyReceived = _details.Any(x => x.ReceivedQty > 0);
+
+        if (isAllCompleted)
+        {
+            Status = PurchaseOrderStatus.Completed;
+        }
+        else if (isAnyReceived)
+        {
+            Status = PurchaseOrderStatus.PartialReceived;
+        }
+    }
+    
+    /// <summary>
+    /// 业务行为：手工强制结案
+    /// </summary>
+    public void ForceClose()
+    {
+        Status = PurchaseOrderStatus.Closed;
+    }
+    
+    /// <summary>
+    /// 更新主表基础信息
+    /// </summary>
+    public void UpdateBasicInfo(DateTime orderDate, DateTime? expectedDeliveryDate)
+    {
+        OrderDate = orderDate;
+        ExpectedDeliveryDate = expectedDeliveryDate;
+    }
+
+    /// <summary>
+    /// 通过聚合根更新明细的期望数量
+    /// </summary>
+    public void UpdateDetailExpectedQty(int lineNo, decimal newExpectedQty)
+    {
+        var detail = _details.FirstOrDefault(x => x.LineNo == lineNo);
+        if (detail == null)
+        {
+            throw new UserFriendlyException($"采购单 {PoNo} 中不存在行号为 {lineNo} 的明细！");
+        }
+
+        // 调用明细内部的更新方法
+        detail.UpdateExpectedQty(newExpectedQty);
+
+        // 数量变化后，可能会导致单据状态发生变化（比如从 PartialReceived 变成了 Completed）
+        RefreshStatus();
     }
 }

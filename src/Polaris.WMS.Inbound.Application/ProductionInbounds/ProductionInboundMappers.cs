@@ -1,5 +1,5 @@
-﻿using Polaris.WMS.Inbound.Domain.ProductionInbounds;
-using Polaris.WMS.Inound.Application.Contracts.ProductionInbounds.Dtos;
+﻿using Polaris.WMS.Inbound.Application.Contracts.ProductionInbounds.Dtos;
+using Polaris.WMS.Inbound.Domain.ProductionInbounds;
 using Riok.Mapperly.Abstractions;
 using Volo.Abp.Mapperly;
 

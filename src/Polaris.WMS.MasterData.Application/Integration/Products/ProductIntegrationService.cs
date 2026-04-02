@@ -7,7 +7,7 @@ namespace Polaris.WMS.MasterData.Application.Integration.Products;
 
 [RemoteService(IsEnabled = false)]
 public class ProductIntegrationService(
-    IRepository<Product, Guid> productRepository 
+    IRepository<Product, Guid> productRepository
 ) : ApplicationService, IProductIntegrationService
 {
     public async Task<List<ProductIntegrationDto>> GetListByIdsAsync(List<Guid> ids)
@@ -23,5 +23,16 @@ public class ProductIntegrationService(
             Name = p.Name,
             Code = p.Code
         }).ToList();
+    }
+
+    public async Task<ProductIntegrationDto> GetProductInfoByCodeAsync(string productCode)
+    {
+        var product = await productRepository.FirstOrDefaultAsync(x => x.Code == productCode);
+        if (product == null)
+        {
+            throw new UserFriendlyException($"主数据异常：WMS 物料库中不存在代码为 [{productCode}] 的物料。请先同步主数据！");
+        }
+
+        return new ProductIntegrationDto { Id = product.Id, Name = product.Name, Code = product.Code };
     }
 }

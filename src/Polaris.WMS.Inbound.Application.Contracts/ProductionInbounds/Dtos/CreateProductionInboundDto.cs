@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Polaris.WMS.ProductionInbounds;
 
-namespace Polaris.WMS.Inound.Application.Contracts.ProductionInbounds.Dtos
+namespace Polaris.WMS.Inbound.Application.Contracts.ProductionInbounds.Dtos
 {
     // <summary>
     /// 创建生产入库单头表 DTO

@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using Volo.Abp;
 using Volo.Abp.Domain.Entities.Auditing;
 
 namespace Polaris.WMS.Inbound.Domain.PurchaseOrders;
@@ -58,6 +59,43 @@ public class PurchaseOrderDetail : AuditedEntity<Guid>
     /// 是否需要质检（可从物料主数据带出，指导收货后的初始状态）。
     /// </summary>
     public bool IsQualityCheckRequired { get; private set; } // 是否需要质检 (可从物料主数据带出，指导收货后的初始状态)
+    
+    protected PurchaseOrderDetail() { }
+
+    internal PurchaseOrderDetail(Guid id, Guid purchaseOrderId, int lineNo, Guid productId, string productCode, string productName, string uom, decimal expectedQty, bool isQualityCheckRequired)
+        : base(id)
+    {
+        PurchaseOrderId = purchaseOrderId;
+        LineNo = lineNo;
+        ProductId = productId;
+        ProductCode = productCode;
+        ProductName = productName;
+        UoM = uom;
+        ExpectedQty = expectedQty >= 0 ? expectedQty : throw new ArgumentException("期望数量不能为负数");
+        IsQualityCheckRequired = isQualityCheckRequired;
+        
+        ReceivedQty = 0;
+        DeliveredQty = 0;
+    }
+    
+    /// <summary>
+    /// 收货逻辑，带入行业特色的容差校验。
+    /// </summary>
+    /// <param name="qty">本次收货数量</param>
+    /// <param name="tolerancePercentage">允许超收的百分比 (例如 0.05 代表 5%)</param>
+    public void AddReceivedQty(decimal qty, decimal tolerancePercentage = 0.03m)
+    {
+        if (qty <= 0) throw new UserFriendlyException("收货数量必须大于 0！");
+
+        decimal maxAllowedQty = ExpectedQty * (1 + tolerancePercentage);
+        
+        if (ReceivedQty + qty > maxAllowedQty)
+        {
+            throw new UserFriendlyException($"超收异常：采购单行 {LineNo} 物料 {ProductCode} 期望 {ExpectedQty}{UoM}，允许的最大超收容差为 {tolerancePercentage:P}。本次收货后总数将达 {ReceivedQty + qty}{UoM}，拒绝收货！");
+        }
+
+        ReceivedQty += qty;
+    }
 
     /// <summary>
     /// 核心领域方法：记录接收数量。
@@ -73,5 +111,21 @@ public class PurchaseOrderDetail : AuditedEntity<Guid>
         }
 
         ReceivedQty += qty;
+    }
+    
+    /// <summary>
+    /// 更新期望数量。
+    /// 领域层防呆：任何情况下，期望数量不得小于已接收数量。
+    /// </summary>
+    internal void UpdateExpectedQty(decimal newExpectedQty)
+    {
+        if (newExpectedQty < 0) throw new ArgumentException("期望数量不能为负数", nameof(newExpectedQty));
+        
+        if (newExpectedQty < ReceivedQty)
+        {
+            throw new UserFriendlyException($"领域规则拦截：行号 {LineNo} 物料 {ProductCode} 已实收 {ReceivedQty}{UoM}，期望数量不能修改为 {newExpectedQty}！");
+        }
+
+        ExpectedQty = newExpectedQty;
     }
 }

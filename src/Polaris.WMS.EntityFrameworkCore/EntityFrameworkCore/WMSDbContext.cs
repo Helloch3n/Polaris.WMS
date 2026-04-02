@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Builders; // ABP 10 必须引入的构建器命名空间
+using Microsoft.EntityFrameworkCore.Metadata.Builders; // ABP 10 需要的构建器命名空间
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polaris.WMS.DataSync;
@@ -16,7 +16,9 @@ using Polaris.WMS.Users;
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using Polaris.WMS.Inbound.Domain.Asns;
 using Polaris.WMS.Inbound.Domain.ProductionInbounds;
+using Polaris.WMS.Inbound.Domain.PurchaseOrders;
 using Polaris.WMS.Inbound.EntityFrameworkCore;
 using Polaris.WMS.InventoryManage.Domain.inventories;
 using Polaris.WMS.InventoryManage.Domain.Reels;
@@ -49,9 +51,14 @@ using Volo.Abp.TenantManagement.EntityFrameworkCore;
 
 namespace Polaris.WMS.EntityFrameworkCore;
 
-// [ReplaceDbContext(typeof(IIdentityDbContext))]
-// [ReplaceDbContext(typeof(ITenantManagementDbContext))]
-// [ReplaceDbContext(typeof(MasterDataDbContext))]
+/// <summary>
+/// WMS 的 EF Core 上下文（聚合模块的统一 DbContext）。
+///
+/// 说明：
+/// - 该上下文整合了多个模块的 DbSet，用于 Migrations 与运行时访问。
+/// - 通过 <see cref="IWMSContextProvider"/> 提供的上下文信息（当前仓库/部门），在全局查询过滤中引入隔离条件。
+/// - 请仅在此文件中维护 DbSet 声明与全局模型配置，具体实体映射请使用独立的 IEntityTypeConfiguration<T> 实现类。
+/// </summary>
 [ConnectionStringName("Default")]
 public class WMSDbContext :
     AbpDbContext<WMSDbContext>,
@@ -63,8 +70,12 @@ public class WMSDbContext :
     IInboundDbContext,
     IOutBoundDbContext
 {
+    // 注：通过 IWMSContextProvider 获取当前请求上下文（仓库/部门），用于拼接动态查询过滤。
     private readonly IWMSContextProvider _wmsContextProvider;
 
+    /// <summary>
+    /// 构造：带 WMS 上下文提供器的构造函数（运行时使用）。
+    /// </summary>
     public WMSDbContext(
         DbContextOptions<WMSDbContext> options,
         IWMSContextProvider wmsContextProvider)
@@ -73,17 +84,20 @@ public class WMSDbContext :
         _wmsContextProvider = wmsContextProvider;
     }
 
+    /// <summary>
+    /// 无上下文提供器的构造函数（用于某些迁移或测试场景）。
+    /// </summary>
     public WMSDbContext(DbContextOptions<WMSDbContext> options)
         : base(options)
     {
     }
 
-    /* Add DbSet properties for your Aggregate Roots / Entities here. */
+    /* 在此添加聚合根/实体对应的 DbSet 属性（仅 DbSet 声明，实体配置请放到 IEntityTypeConfiguration 中） */
 
 
-    #region Entities from the modules
+    #region 从模块引入的实体（模块表）
 
-    // Identity
+    // Identity 模块
     public DbSet<IdentityUser> Users { get; set; }
     public DbSet<IdentityRole> Roles { get; set; }
     public DbSet<IdentityClaimType> ClaimTypes { get; set; }
@@ -94,12 +108,12 @@ public class WMSDbContext :
     public DbSet<IdentitySession> Sessions { get; set; }
 
 
-    // Tenant Management
+    // Tenant Management 模块
     public DbSet<Tenant> Tenants { get; set; }
     public DbSet<TenantConnectionString> TenantConnectionStrings { get; set; }
 
 
-    // Users - Warehouse mapping
+    // 用户与仓库关联表
     public DbSet<UserWarehouse> UserWarehouses { get; set; }
 
     #endregion
@@ -127,20 +141,26 @@ public class WMSDbContext :
     #region 入库模块 (Inbound)
     public DbSet<ProductionInbound> ProductionInbounds { get; set; }
     public DbSet<ProductionInboundDetail> ProductionInboundDetails { get; set; }
+    public DbSet<PurchaseOrder>  PurchaseOrders { get; set; }
+    public DbSet<PurchaseOrderDetail> PurchaseOrderDetails { get; set; }
+    public DbSet<AdvancedShippingNotice> Asns { get; set; }
+    public DbSet<AsnDetail> AsnDetails { get; set; }
     // ... 其他入库表
     #endregion
     
     #region 出库模块 (Outbound)
-    // 请根据你的实体补充：例如
-    // public DbSet<OutboundOrder> OutboundOrders { get; set; } 
-    // ...
+    // 如果需要请在此补充 Outbound 相关的 DbSet 定义，例如：
+    // public DbSet<OutboundOrder> OutboundOrders { get; set; }
     #endregion
 
+    /// <summary>
+    /// 全局模型创建：集中调用各模块的 Configure 方法并应用 IEntityTypeConfiguration 实现。
+    /// </summary>
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
 
-        /* Include modules to your migration db context */
+        /* 将需要的 ABP 模块表结构挂载到当前上下文（用于迁移） */
 
         builder.ConfigurePermissionManagement();
         builder.ConfigureSettingManagement();
@@ -152,25 +172,26 @@ public class WMSDbContext :
         builder.ConfigureTenantManagement();
         builder.ConfigureBlobStoring();
 
-        // 挂载主数据模块的表结构
+        // 挂载各自模块的实体映射配置
         builder.ConfigureMasterData();
         builder.ConfigureTaskRouting();
         builder.ConfigureInventory();
         builder.ConfigureInbound();
         builder.ConfigureOutBound();
 
-        // 自动扫描当前程序集 (Assembly) 中所有实现了 IEntityTypeConfiguration<T> 的类并将它们应用到 builder 中。
+        // 自动从当前程序集应用所有 IEntityTypeConfiguration<T>
         builder.ApplyConfigurationsFromAssembly(this.GetType().Assembly);
 
-        // 注意：此处不再手写 foreach HasQueryFilter，将控制权交给下方的原生过滤管道
+        // 注意：不要在这里手动为每个实体写 HasQueryFilter，统一交由下面的过滤管道处理
     }
 
     // ========================================================================
-    // 🌟 核心改造区：重写 ABP 10 原生过滤管道 (带 TEntity : class 泛型约束)
+    // 核心扩展：为 ABP 的过滤管道提供自定义隔离逻辑（部门 / 仓库）
+    // 说明：重写以下方法可在 EF 层自动注入部门与仓库维度的 WHERE 条件
     // ========================================================================
 
     /// <summary>
-    /// 1. 告诉 ABP：遇到实现这两个接口的实体时，启用自定义过滤器
+    /// 指示是否为某实体启用自定义过滤（当实体实现 IMultiDepartment 或 IMultiWarehouse 时返回 true）。
     /// </summary>
     protected override bool ShouldFilterEntity<TEntity>(IMutableEntityType entityType) where TEntity : class
     {
@@ -181,16 +202,17 @@ public class WMSDbContext :
     }
 
     /// <summary>
-    /// 2. 缝合表达式：将 ABP 原生过滤（如软删除 IsDeleted==false）和我们的隔离墙拼装在一起
+    /// 为指定实体拼接额外的过滤表达式（与 ABP 的基础过滤表达式合并）。
+    /// - 将部门过滤与仓库过滤以 AND 方式合并到已有过滤器上。
     /// </summary>
     protected override Expression<Func<TEntity, bool>> CreateFilterExpression<TEntity>(
         ModelBuilder modelBuilder,
         EntityTypeBuilder<TEntity> entityTypeBuilder) where TEntity : class
     {
-        // 拿到 ABP 已经拼好的基础过滤墙（传入 ABP 10 所需的构建器参数）
+        // 获取 ABP 已经构建的基础过滤表达式（例如：软删除等）
         var expression = base.CreateFilterExpression<TEntity>(modelBuilder, entityTypeBuilder);
 
-        // 挂载 部门/车间 隔离墙
+        // 部门隔离：若实体实现 IMultiDepartment，则追加部门过滤条件
         if (typeof(IMultiDepartment).IsAssignableFrom(typeof(TEntity)))
         {
             Expression<Func<TEntity, bool>> deptFilter = e =>
@@ -200,7 +222,7 @@ public class WMSDbContext :
             expression = expression == null ? deptFilter : CombineExpressions(expression, deptFilter);
         }
 
-        // 挂载 仓库 隔离墙
+        // 仓库隔离：若实体实现 IMultiWarehouse，则追加仓库过滤条件
         if (typeof(IMultiWarehouse).IsAssignableFrom(typeof(TEntity)))
         {
             Expression<Func<TEntity, bool>> whFilter = e =>
@@ -214,7 +236,7 @@ public class WMSDbContext :
     }
 
     /// <summary>
-    /// 3. 表达式树缝合工具（将多个 WHERE 条件用 AND 安全连接）
+    /// 将两个表达式通过逻辑 AND 合并为单个表达式（参数替换以确保参数一致）。
     /// </summary>
     protected virtual Expression<Func<T, bool>> CombineExpressions<T>(
         Expression<Func<T, bool>> expression1,
@@ -233,7 +255,8 @@ public class WMSDbContext :
 }
 
 /// <summary>
-/// 4. C# 原生表达式参数替换器 (极其稳定，不依赖任何 EF Core 版本)
+/// 辅助工具：表达式参数替换器，用于将两个 Lambda 的参数统一为同一个 ParameterExpression，
+/// 以便将它们合并为单个表达式。此类实现为 internal，避免被外部直接使用。
 /// </summary>
 internal class ParameterReplaceVisitor : ExpressionVisitor
 {
@@ -248,7 +271,7 @@ internal class ParameterReplaceVisitor : ExpressionVisitor
 
     protected override Expression VisitParameter(ParameterExpression node)
     {
-        // 如果遍历到的参数节点是我们想要替换的老参数，就返回新参数
+        // 如果当前遍历到的参数等于旧参数，则返回新的统一参数，确保表达式参数一致性
         if (ReferenceEquals(node, _oldParameter))
         {
             return _newParameter;

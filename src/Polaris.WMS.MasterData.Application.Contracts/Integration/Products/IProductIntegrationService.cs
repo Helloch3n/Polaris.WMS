@@ -7,4 +7,6 @@ namespace Polaris.WMS.MasterData.Application.Contracts.Integration.Products;
 public interface IProductIntegrationService : IApplicationService
 {
     Task<List<ProductIntegrationDto>> GetListByIdsAsync(List<Guid> ids);
+
+    Task<ProductIntegrationDto> GetProductInfoByCodeAsync(string productCode);
 }

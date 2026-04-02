@@ -1,5 +1,5 @@
-﻿using Polaris.WMS.Inbound.Domain;
-using Polaris.WMS.Inound.Application.Contracts;
+﻿using Polaris.WMS.Inbound.Application.Contracts;
+using Polaris.WMS.Inbound.Domain;
 using Polaris.WMS.InventoryManage.Application.Contracts;
 using Volo.Abp.Application;
 using Volo.Abp.Mapperly;

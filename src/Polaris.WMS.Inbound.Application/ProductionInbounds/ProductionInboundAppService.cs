@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Polaris.WMS.Inbound.Application.Contracts.ProductionInbounds;
+using Polaris.WMS.Inbound.Application.Contracts.ProductionInbounds.Dtos;
 using Polaris.WMS.Inbound.Domain.ProductionInbounds;
-using Polaris.WMS.Inound.Application.Contracts.ProductionInbounds;
-using Polaris.WMS.Inound.Application.Contracts.ProductionInbounds.Dtos;
 using Polaris.WMS.Integration.Departments;
 using Polaris.WMS.Inventories.Invnentory.Events;
 using Polaris.WMS.MasterData.Application.Contracts.Integration.Products;

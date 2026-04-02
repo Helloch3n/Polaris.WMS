@@ -1,7 +1,7 @@
 ﻿using Polaris.WMS.ProductionInbounds;
 using Volo.Abp.Application.Dtos;
 
-namespace Polaris.WMS.Inound.Application.Contracts.ProductionInbounds.Dtos
+namespace Polaris.WMS.Inbound.Application.Contracts.ProductionInbounds.Dtos
 {
     public class ProductionInboundDto : AuditedEntityDto<Guid>
     {
