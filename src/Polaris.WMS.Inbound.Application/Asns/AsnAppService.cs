@@ -1,5 +1,4 @@
-﻿using System.Linq.Dynamic.Core;
-using Polaris.WMS.Inbound.Application.Contracts.Asns;
+﻿using Polaris.WMS.Inbound.Application.Contracts.Asns;
 using Polaris.WMS.Inbound.Application.Contracts.Asns.Dtos;
 using Polaris.WMS.Inbound.Domain.Asns;
 using Volo.Abp;
@@ -38,21 +37,39 @@ public class AsnAppService(IRepository<AdvancedShippingNotice, Guid> repository)
         return ObjectMapper.Map<AdvancedShippingNotice, AdvancedShippingNoticeDto>(entity);
     }
 
-    public async Task<PagedResultDto<AdvancedShippingNoticeDto>> GetListAsync(GetAsnListDto input)
+    public async Task<PagedResultDto<AdvancedShippingNoticeDto>> GetListAsync(AsnSearchDto input)
     {
+        input ??= new AsnSearchDto();
+        var asnNo = input.AsnNo?.Trim();
+        var supplierName = input.SupplierName?.Trim();
+        var licensePlate = input.LicensePlate?.Trim();
+
         var query = (await repository.GetQueryableAsync())
-            .WhereIf(!string.IsNullOrWhiteSpace(input.Filter), 
-                x => x.AsnNo.Contains(input.Filter) || x.SupplierName.Contains(input.Filter))
+            .WhereIf(!string.IsNullOrWhiteSpace(asnNo), x => x.AsnNo == asnNo)
+            .WhereIf(!string.IsNullOrWhiteSpace(supplierName), x => x.SupplierName.Contains(supplierName!))
             .WhereIf(input.Status.HasValue, x => x.Status == input.Status)
-            .WhereIf(!string.IsNullOrWhiteSpace(input.LicensePlate), 
-                x => x.Details.Any(d => d.LicensePlate.Contains(input.LicensePlate))); // 使用 Any 进行子表车牌查询
+            .WhereIf(!string.IsNullOrWhiteSpace(licensePlate), x => x.Details.Any(d => d.LicensePlate.Contains(licensePlate!)));
 
         var totalCount = await AsyncExecuter.CountAsync(query);
 
+        var sortingField = input.Sorting?.Split(' ', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
+        var isDesc = input.Sorting?.Contains("DESC", StringComparison.OrdinalIgnoreCase) == true;
+
+        query = sortingField switch
+        {
+            nameof(AdvancedShippingNotice.AsnNo) => isDesc ? query.OrderByDescending(x => x.AsnNo) : query.OrderBy(x => x.AsnNo),
+            nameof(AdvancedShippingNotice.SupplierName) => isDesc ? query.OrderByDescending(x => x.SupplierName) : query.OrderBy(x => x.SupplierName),
+            nameof(AdvancedShippingNotice.Status) => isDesc ? query.OrderByDescending(x => x.Status) : query.OrderBy(x => x.Status),
+            nameof(AdvancedShippingNotice.CreationTime) => isDesc ? query.OrderByDescending(x => x.CreationTime) : query.OrderBy(x => x.CreationTime),
+            _ => query.OrderByDescending(x => x.CreationTime)
+        };
+
+        var skipCount = input.SkipCount < 0 ? 0 : input.SkipCount;
+        var maxResultCount = input.MaxResultCount <= 0 ? 10 : input.MaxResultCount;
+
         var items = await AsyncExecuter.ToListAsync(
-            query.OrderBy(string.IsNullOrWhiteSpace(input.Sorting) ? "CreationTime DESC" : input.Sorting)
-                 .Skip(input.SkipCount)
-                 .Take(input.MaxResultCount)
+            query.Skip(skipCount)
+                .Take(maxResultCount)
         );
 
         return new PagedResultDto<AdvancedShippingNoticeDto>(

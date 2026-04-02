@@ -38,7 +38,7 @@ namespace Polaris.WMS.Inbound.Application.Contracts.ProductionInbounds
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
-        public Task<PagedResultDto<ProductionInboundDto>> GetListAsync(GetProductionInboundListDto input);
+        public Task<PagedResultDto<ProductionInboundDto>> GetListAsync(ProductionInboundSearchDto input);
 
         /// <summary>
         /// 更新入库单

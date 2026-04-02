@@ -174,23 +174,17 @@ namespace Polaris.WMS.Inbound.Application.ProductionInbounds
         /// <summary>
         /// 分页查询生产入库单列表
         /// </summary>
-        public async Task<PagedResultDto<ProductionInboundDto>> GetListAsync(GetProductionInboundListDto input)
+        public async Task<PagedResultDto<ProductionInboundDto>> GetListAsync(ProductionInboundSearchDto input)
         {
             if (input == null) throw new UserFriendlyException("查询参数不能为空");
 
-            // 1. 仅仅获取本模块的 IQueryable (干掉跨模块仓储)
-            var inboundQuery = await inboundRepository.GetQueryableAsync();
+            var orderNo = input.OrderNo?.Trim();
+            var sourceOrderNo = input.SourceOrderNo?.Trim();
 
-            // 2. 过滤条件
-            var filter = input.Filter?.Trim();
-            inboundQuery = inboundQuery
-                .WhereIf(!string.IsNullOrWhiteSpace(filter), x =>
-                    (x.OrderNo != null && x.OrderNo.Contains(filter!)) ||
-                    (x.SourceOrderNo != null && x.SourceOrderNo.Contains(filter!)))
-                .WhereIf(input.InboundType.HasValue, x => x.InboundType == input.InboundType)
-                .WhereIf(input.Status.HasValue, x => x.Status == input.Status)
-                .WhereIf(input.SourceDepartmentId.HasValue, x => x.SourceDepartmentId == input.SourceDepartmentId)
-                .WhereIf(input.TargetWarehouseId.HasValue, x => x.TargetWarehouseId == input.TargetWarehouseId);
+            var inboundQuery = (await inboundRepository.GetQueryableAsync())
+                .WhereIf(!string.IsNullOrWhiteSpace(orderNo), x => x.OrderNo == orderNo)
+                .WhereIf(!string.IsNullOrWhiteSpace(sourceOrderNo), x => x.SourceOrderNo == sourceOrderNo)
+                .WhereIf(input.Status.HasValue, x => x.Status == input.Status);
 
             // 3. 总数统计
             var totalCount = await AsyncExecuter.CountAsync(inboundQuery);

@@ -8,5 +8,5 @@ public interface IPurchaseOrderAppService : IApplicationService
 {
     Task<PurchaseOrderDto> GetAsync(Guid id);
     Task<PurchaseOrderDto> GetByPoNoAsync(string poNo);
-    Task<PagedResultDto<PurchaseOrderDto>> GetListAsync(GetPurchaseOrderListDto input);
+    Task<PagedResultDto<PurchaseOrderDto>> GetListAsync(PurchaseOrderSearchDto input);
 }
