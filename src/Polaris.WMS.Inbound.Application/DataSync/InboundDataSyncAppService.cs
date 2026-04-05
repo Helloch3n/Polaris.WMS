@@ -116,8 +116,14 @@ public class InboundDataSyncAppService(
 
             foreach (var item in input.Details)
             {
+                var po=await poRepository.GetAsync(x=>x.PoNo==item.SourcePoNo);
+                if (po == null)
+                {
+                    throw new UserFriendlyException($"ASN 明细行 {item.ScmAsnRowNo} 中的源头采购单号 {item.SourcePoNo} 在系统中不存在！");
+                }
+
                 var productInfo = await productIntegrationService.GetProductInfoByCodeAsync(item.ProductCode);
-                newAsn.AddDetail(GuidGenerator.Create(), item.ScmAsnRowNo, item.SourcePoNo, item.SourcePoLineNo,
+                newAsn.AddDetail(GuidGenerator.Create(), item.ScmAsnRowNo,po.Id,item.SourcePoNo, item.SourcePoLineNo,
                     productInfo.Id, item.ProductCode, item.ProductName, item.UoM, item.ExpectedQty,
                     item.SupplierBatchNo,
                     input.LicensePlate);
@@ -139,15 +145,22 @@ public class InboundDataSyncAppService(
             // 2) 明细 Upsert：存在则更新，不存在则新增
             foreach (var item in input.Details)
             {
+                
                 var existingDetail = existingAsn.Details.FirstOrDefault(x => x.ScmAsnRowNo == item.ScmAsnRowNo);
 
                 if (existingDetail == null)
                 {
+                    var po= await poRepository.GetAsync(x=>x.PoNo==item.SourcePoNo);
+                    if (po == null)
+                    {
+                        throw new UserFriendlyException($"ASN 明细行 {item.ScmAsnRowNo} 中的源头采购单号 {item.SourcePoNo} 在系统中不存在！");
+                    }
                     var productInfo = await productIntegrationService.GetProductInfoByCodeAsync(item.ProductCode);
 
                     existingAsn.AddDetail(
                         GuidGenerator.Create(),
                         item.ScmAsnRowNo,
+                        po.Id,
                         item.SourcePoNo,
                         item.SourcePoLineNo,
                         productInfo.Id,

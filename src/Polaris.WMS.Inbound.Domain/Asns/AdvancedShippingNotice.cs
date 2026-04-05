@@ -68,9 +68,9 @@ public class AdvancedShippingNotice : FullAuditedAggregateRoot<Guid>
         Status = AsnStatus.Pending;
     }
     
-    public AsnDetail AddDetail(Guid id, string scmAsnRowNo, string sourcePoNo, int sourcePoLineNo, Guid productId, string productCode, string productName, string uom, decimal expectedQty, string supplierBatchNo = null, string licensePlate = null)
+    public AsnDetail AddDetail(Guid id, string scmAsnRowNo, Guid sourcePoId,string sourcePoNo, int sourcePoLineNo, Guid productId, string productCode, string productName, string uom, decimal expectedQty, string supplierBatchNo = null, string licensePlate = null)
     {
-        var detail = new AsnDetail(id, Id, scmAsnRowNo, sourcePoNo, sourcePoLineNo, productId, productCode, productName, uom, expectedQty, supplierBatchNo, licensePlate);
+        var detail = new AsnDetail(id, Id, scmAsnRowNo, sourcePoId,sourcePoNo, sourcePoLineNo, productId, productCode, productName, uom, expectedQty, supplierBatchNo, licensePlate);
         _details.Add(detail);
         return detail;
     }

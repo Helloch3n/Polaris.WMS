@@ -16,7 +16,7 @@ public class AsnDetail : AuditedEntity<Guid>
 
     public string ScmAsnRowNo { get; private set; }
 
-    public string SourcePoId { get; private set; }
+    public Guid SourcePoId { get; private set; }
 
     /// <summary>
     /// 源头采购单号（ERP 中的采购单编号）。
@@ -74,13 +74,14 @@ public class AsnDetail : AuditedEntity<Guid>
     {
     }
 
-    internal AsnDetail(Guid id, Guid asnId, string scmAsnRowNo, string sourcePoNo, int sourcePoLineNo, Guid productId,
+    internal AsnDetail(Guid id, Guid asnId, string scmAsnRowNo, Guid sourcePoId,string sourcePoNo, int sourcePoLineNo, Guid productId,
         string productCode, string productName, string uom, decimal expectedQty, string supplierBatchNo,
         string licensePlate)
         : base(id)
     {
         AsnId = asnId;
         ScmAsnRowNo = scmAsnRowNo;
+        SourcePoId = sourcePoId;
         SourcePoNo = sourcePoNo;
         SourcePoLineNo = sourcePoLineNo;
         ProductId = productId;

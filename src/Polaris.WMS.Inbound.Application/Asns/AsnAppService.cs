@@ -72,9 +72,13 @@ public class AsnAppService(IRepository<AdvancedShippingNotice, Guid> repository)
                 .Take(maxResultCount)
         );
 
+        // return new PagedResultDto<AdvancedShippingNoticeDto>(
+        //     totalCount,
+        //     ObjectMapper.Map<List<AdvancedShippingNotice>, List<AdvancedShippingNoticeDto>>(items)
+        // );
         return new PagedResultDto<AdvancedShippingNoticeDto>(
             totalCount,
-            ObjectMapper.Map<List<AdvancedShippingNotice>, List<AdvancedShippingNoticeDto>>(items)
+            items.Select(x => ObjectMapper.Map<AdvancedShippingNotice, AdvancedShippingNoticeDto>(x)).ToList()
         );
     }
 }

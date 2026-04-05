@@ -19,6 +19,7 @@ using System.Linq.Expressions;
 using Polaris.WMS.Inbound.Domain.Asns;
 using Polaris.WMS.Inbound.Domain.ProductionInbounds;
 using Polaris.WMS.Inbound.Domain.PurchaseOrders;
+using Polaris.WMS.Inbound.Domain.PurchaseReceipts;
 using Polaris.WMS.Inbound.EntityFrameworkCore;
 using Polaris.WMS.InventoryManage.Domain.inventories;
 using Polaris.WMS.InventoryManage.Domain.Reels;
@@ -143,6 +144,8 @@ public class WMSDbContext :
     public DbSet<ProductionInboundDetail> ProductionInboundDetails { get; set; }
     public DbSet<PurchaseOrder>  PurchaseOrders { get; set; }
     public DbSet<PurchaseOrderDetail> PurchaseOrderDetails { get; set; }
+    public DbSet<PurchaseReceipt> PurchaseReceipts { get; set; }
+    public DbSet<PurchaseReceiptDetail> PurchaseReceiptDetails { get; set; }
     public DbSet<AdvancedShippingNotice> Asns { get; set; }
     public DbSet<AsnDetail> AsnDetails { get; set; }
     // ... 其他入库表

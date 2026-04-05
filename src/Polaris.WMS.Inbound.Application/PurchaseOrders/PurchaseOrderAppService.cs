@@ -70,10 +70,18 @@ public class PurchaseOrderAppService(IRepository<PurchaseOrder, Guid> purchaseOr
         query = sortingField switch
         {
             nameof(PurchaseOrder.PoNo) => isDesc ? query.OrderByDescending(x => x.PoNo) : query.OrderBy(x => x.PoNo),
-            nameof(PurchaseOrder.SupplierName) => isDesc ? query.OrderByDescending(x => x.SupplierName) : query.OrderBy(x => x.SupplierName),
-            nameof(PurchaseOrder.Status) => isDesc ? query.OrderByDescending(x => x.Status) : query.OrderBy(x => x.Status),
-            nameof(PurchaseOrder.OrderDate) => isDesc ? query.OrderByDescending(x => x.OrderDate) : query.OrderBy(x => x.OrderDate),
-            nameof(PurchaseOrder.CreationTime) => isDesc ? query.OrderByDescending(x => x.CreationTime) : query.OrderBy(x => x.CreationTime),
+            nameof(PurchaseOrder.SupplierName) => isDesc
+                ? query.OrderByDescending(x => x.SupplierName)
+                : query.OrderBy(x => x.SupplierName),
+            nameof(PurchaseOrder.Status) => isDesc
+                ? query.OrderByDescending(x => x.Status)
+                : query.OrderBy(x => x.Status),
+            nameof(PurchaseOrder.OrderDate) => isDesc
+                ? query.OrderByDescending(x => x.OrderDate)
+                : query.OrderBy(x => x.OrderDate),
+            nameof(PurchaseOrder.CreationTime) => isDesc
+                ? query.OrderByDescending(x => x.CreationTime)
+                : query.OrderBy(x => x.CreationTime),
             _ => query.OrderByDescending(x => x.CreationTime)
         };
 
@@ -87,7 +95,8 @@ public class PurchaseOrderAppService(IRepository<PurchaseOrder, Guid> purchaseOr
 
         return new PagedResultDto<PurchaseOrderDto>(
             totalCount,
-            ObjectMapper.Map<List<PurchaseOrder>, List<PurchaseOrderDto>>(items)
+            //ObjectMapper.Map<List<PurchaseOrder>, List<PurchaseOrderDto>>(items)
+            items.Select(x => ObjectMapper.Map<PurchaseOrder, PurchaseOrderDto>(x)).ToList()
         );
     }
 }

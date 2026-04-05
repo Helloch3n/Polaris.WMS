@@ -2,6 +2,7 @@
 using Polaris.WMS.Inbound.Domain.Asns;
 using Polaris.WMS.Inbound.Domain.ProductionInbounds;
 using Polaris.WMS.Inbound.Domain.PurchaseOrders;
+using Polaris.WMS.Inbound.Domain.PurchaseReceipts;
 using Volo.Abp.Data;
 using Volo.Abp.EntityFrameworkCore;
 
@@ -17,6 +18,8 @@ public class InboundDbContext : AbpDbContext<InboundDbContext>,IInboundDbContext
     public DbSet<ProductionInboundDetail> ProductionInboundDetails { get; set; }
     public DbSet<PurchaseOrder>  PurchaseOrders { get; set; }
     public DbSet<PurchaseOrderDetail> PurchaseOrderDetails { get; set; }
+    public DbSet<PurchaseReceipt> PurchaseReceipts { get; set; }
+    public DbSet<PurchaseReceiptDetail> PurchaseReceiptDetails { get; set; }
     public DbSet<AdvancedShippingNotice> Asns { get; set; }
     public DbSet<AsnDetail> AsnDetails { get; set; }
 
