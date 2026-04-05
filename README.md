@@ -70,3 +70,24 @@ update
 ```
 dotnet ef database update --project src/Polaris.WMS.EntityFrameworkCore --startup-project src/Polaris.WMS.Web    
 ```
+
+#### PurchaseReceipt (LocationCode -> string)
+
+> zsh 如果未配置全局工具路径，请先执行一次：
+
+```bash
+export PATH="$PATH:/Users/helloch3n/.dotnet/tools"
+```
+
+生成本次迁移：
+
+```bash
+dotnet ef migrations add ChangePurchaseReceiptLocationCodeToString --project src/Polaris.WMS.EntityFrameworkCore --startup-project src/Polaris.WMS.Web --context WMSDbContext
+```
+
+更新数据库：
+
+```bash
+dotnet ef database update --project src/Polaris.WMS.EntityFrameworkCore --startup-project src/Polaris.WMS.Web --context WMSDbContext
+```
+

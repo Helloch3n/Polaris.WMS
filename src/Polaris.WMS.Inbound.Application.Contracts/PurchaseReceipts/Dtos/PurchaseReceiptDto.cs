@@ -31,7 +31,7 @@ public class PurchaseReceiptDetailDto : EntityDto<Guid>
     public Guid ContainerId { get; set; }
     public string ContainerCode { get; set; } = string.Empty;
     public Guid LocationId { get; set; }
-    public Guid LocationCode { get; set; }
+    public string LocationCode { get; set; } = string.Empty;
     public string? BatchNo { get; set; }
     public PurchaseReceiptErpSyncStatus ErpSyncStatus { get; set; }
     public string? ErpSyncErrorMessage { get; set; }

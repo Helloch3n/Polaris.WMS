@@ -1,6 +1,5 @@
 using Volo.Abp.Domain.Entities;
 using Volo.Abp;
-using Polaris.WMS.Inbound;
 
 namespace Polaris.WMS.Inbound.Domain.PurchaseReceipts;
 
@@ -62,7 +61,7 @@ public class PurchaseReceiptDetail : Entity<Guid>
     /// <summary>
     /// 位置编码快照。
     /// </summary>
-    public Guid LocationCode { get; private set; }
+    public string LocationCode { get; private set; }
 
     /// <summary>
     /// 批次号（如果有）。
@@ -91,7 +90,7 @@ public class PurchaseReceiptDetail : Entity<Guid>
         Guid containerId,
         string containerCode,
         Guid locationId,
-        Guid locationCode,
+        string locationCode,
         Guid? sourceDetailId = null,
         string? batchNo = null) : base(id)
     {
@@ -103,7 +102,7 @@ public class PurchaseReceiptDetail : Entity<Guid>
         ContainerId = containerId;
         ContainerCode = Check.NotNullOrWhiteSpace(containerCode, nameof(containerCode), maxLength: 64);
         LocationId = locationId;
-        LocationCode = locationCode;
+        LocationCode = Check.NotNullOrWhiteSpace(locationCode, nameof(locationCode), maxLength: 64);
         SourceDetailId = sourceDetailId;
         BatchNo = batchNo?.Trim();
 

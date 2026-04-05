@@ -103,10 +103,11 @@ public class CreatePurchaseReceiptDetailDto : IValidationEnabled
     public Guid LocationId { get; set; }
 
     /// <summary>
-    /// 库位编码快照（当前按 Guid 存储）。
+    /// 库位编码快照。
     /// </summary>
     [Required]
-    public Guid LocationCode { get; set; }
+    [MaxLength(64)]
+    public string LocationCode { get; set; } = string.Empty;
 
     /// <summary>
     /// 批次号。

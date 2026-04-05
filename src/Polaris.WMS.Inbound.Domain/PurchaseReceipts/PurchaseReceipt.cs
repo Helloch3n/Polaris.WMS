@@ -77,7 +77,7 @@ public class PurchaseReceipt : FullAuditedAggregateRoot<Guid>
         Guid containerId,
         string containerCode,
         Guid locationId,
-        Guid locationCode,
+        string locationCode,
         Guid? sourceDetailId = null,
         string? batchNo = null)
     {

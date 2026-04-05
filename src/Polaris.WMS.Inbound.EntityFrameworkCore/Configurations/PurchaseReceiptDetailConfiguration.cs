@@ -15,6 +15,7 @@ public class PurchaseReceiptDetailConfiguration : IEntityTypeConfiguration<Purch
         builder.Property(x => x.ProductCode).IsRequired().HasMaxLength(64);
         builder.Property(x => x.ProductName).IsRequired().HasMaxLength(256);
         builder.Property(x => x.ContainerCode).IsRequired().HasMaxLength(64);
+        builder.Property(x => x.LocationCode).IsRequired().HasMaxLength(64);
         builder.Property(x => x.BatchNo).HasMaxLength(64);
         builder.Property(x => x.ErpSyncErrorMessage).HasMaxLength(1000);
 

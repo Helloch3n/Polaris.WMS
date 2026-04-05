@@ -1,6 +1,4 @@
 using Polaris.WMS.BillNumbers;
-using Polaris.WMS.Inbound;
-using System.Linq;
 using Volo.Abp;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Domain.Services;
@@ -133,7 +131,7 @@ public class PurchaseReceiptDetailCreateInfo
     public Guid ContainerId { get; set; }
     public string ContainerCode { get; set; } = string.Empty;
     public Guid LocationId { get; set; }
-    public Guid LocationCode { get; set; }
+    public string LocationCode { get; set; } = string.Empty;
     public Guid? SourceDetailId { get; set; }
     public string? BatchNo { get; set; }
 }
