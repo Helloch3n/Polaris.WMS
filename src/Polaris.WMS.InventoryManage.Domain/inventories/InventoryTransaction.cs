@@ -1,7 +1,7 @@
 ﻿using Polaris.WMS.Inventories.Invnentory;
 using Polaris.WMS.Inventories.Ivnentory;
 using Polaris.WMS.Inventories.Transaction;
-using Polaris.WMS.InventoryManage.Domain.Reels;
+using Polaris.WMS.InventoryManage.Domain.Containers;
 using Volo.Abp;
 using Volo.Abp.Domain.Entities.Auditing;
 
@@ -20,7 +20,7 @@ namespace Polaris.WMS.InventoryManage.Domain.inventories
         // 2. 关联对象 (Relations)
         // ==========================================
         public Guid InventoryId { get; private set; }
-        public Guid ReelId { get; private set; }
+        public Guid ContainerId { get; private set; }
         public Guid ProductId { get; private set; }
 
         // ==========================================
@@ -56,7 +56,7 @@ namespace Polaris.WMS.InventoryManage.Domain.inventories
         // ==========================================
         // 6. 导航属性 (Navigation Properties)
         // ==========================================
-        public Reel Reel { get; private set; }
+        public Container Container { get; private set; }
 
         protected InventoryTransaction()
         {
@@ -67,7 +67,7 @@ namespace Polaris.WMS.InventoryManage.Domain.inventories
             TransactionType type,
             string billNo,
             Guid inventoryId,
-            Guid reelId,
+            Guid containerId,
             Guid productId,
             decimal quantity,
             decimal quantityAfter,
@@ -84,7 +84,7 @@ namespace Polaris.WMS.InventoryManage.Domain.inventories
             Type = type;
             BillNo = Check.NotNullOrWhiteSpace(billNo, nameof(billNo));
             InventoryId = inventoryId;
-            ReelId = reelId;
+            ContainerId = containerId;
             ProductId = productId;
             Quantity = quantity;
             QuantityAfter = quantityAfter;

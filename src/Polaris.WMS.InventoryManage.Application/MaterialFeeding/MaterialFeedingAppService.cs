@@ -1,12 +1,12 @@
 ﻿using Polaris.WMS.Inventories.Invnentory;
-using Polaris.WMS.Inventories.Reels;
+using Polaris.WMS.Inventories.Containers;
 using Polaris.WMS.Inventories.Transaction;
 using Polaris.WMS.InventoryManage.Application.Contracts.MaterialFeeding;
 using Polaris.WMS.InventoryManage.Application.Contracts.MaterialFeeding.Dtos;
 using Polaris.WMS.InventoryManage.Domain.inventories;
 using Polaris.WMS.InventoryManage.Domain.inventories.Args;
-using Polaris.WMS.InventoryManage.Domain.Reels;
-using Polaris.WMS.MasterData.Reels;
+using Polaris.WMS.InventoryManage.Domain.Containers;
+using Polaris.WMS.MasterData.Containers;
 using Volo.Abp;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Domain.Repositories;
@@ -14,23 +14,23 @@ using Volo.Abp.Domain.Repositories;
 namespace Polaris.WMS.InventoryManage.Application.MaterialFeeding;
 
 public class MaterialFeedingAppService(
-    IRepository<Reel, Guid> containerRepository,
+    IRepository<Container, Guid> containerRepository,
     IRepository<Inventory, Guid> inventoryRepository,
     InventoryTransactionManager transactionService,
-    ReelManager reelManager,
+    ContainerManager containerManager,
     InventoryManager inventoryManager
 ) : ApplicationService, IMaterialFeedingAppService
 {
     public async Task FeedAndLockAsync(FeedMaterialInputDto input)
     {
         // 1. 获取并校验盘具 (Container)
-        var container = await containerRepository.FirstOrDefaultAsync(x => x.ReelNo == input.ContainerCode);
+        var container = await containerRepository.FirstOrDefaultAsync(x => x.ContainerCode == input.ContainerCode);
         if (container == null)
         {
             throw new UserFriendlyException($"未找到编号为 {input.ContainerCode} 的盘具。");
         }
 
-        if (container.Status == ReelStatus.Empty)
+        if (container.Status == ContainerStatus.Empty)
         {
             throw new UserFriendlyException($"该盘具为空盘，无法进行投料");
         }
@@ -41,7 +41,7 @@ public class MaterialFeedingAppService(
         }
 
         // 2. 获取该盘具上的所有库存明细
-        var inventories = await inventoryRepository.GetListAsync(x => x.ReelId == container.Id);
+        var inventories = await inventoryRepository.GetListAsync(x => x.ContainerId == container.Id);
         if (!inventories.Any())
         {
             throw new UserFriendlyException($"该盘具上没有可用库存，无法投料。");
@@ -85,7 +85,7 @@ public class MaterialFeedingAppService(
             //         ? $"Material-Feed-{Clock.Now:yyyyMMddHHmmssfff}"
             //         : input.OrderNo,
             //     InventoryId = inv.Id,
-            //     ReelId = inv.ReelId,
+            //     ContainerId = inv.ContainerId,
             //     ProductId = inv.ProductId,
             //     Quantity = inv.Quantity,
             //     QuantityAfter = inv.Quantity,
@@ -106,7 +106,7 @@ public class MaterialFeedingAppService(
     public async Task UnlockAndReturnAsync(UnlockMaterialInputDto input)
     {
         // 1. 获取盘具 (Container)
-        var container = await containerRepository.FirstOrDefaultAsync(x => x.ReelNo == input.ContainerCode);
+        var container = await containerRepository.FirstOrDefaultAsync(x => x.ContainerCode == input.ContainerCode);
         if (container == null)
         {
             throw new UserFriendlyException($"未找到编号为 {input.ContainerCode} 的盘具。");
@@ -126,13 +126,13 @@ public class MaterialFeedingAppService(
         // }
 
         // 4. 获取该盘具上所有剩余的库存明细
-        var inventories = await inventoryRepository.GetListAsync(x => x.ReelId == container.Id);
+        var inventories = await inventoryRepository.GetListAsync(x => x.ContainerId == container.Id);
 
         // 5. 如果盘具空了（被扣完了），触发空托盘回收逻辑
         // if (!inventories.Any() || inventories.All(x => x.Quantity <= 0))
         // {
         //     // 处理盘具生命周期
-        //     await reelManager.HandleReelAfterInventoryDepletedAsync(container.Id);
+        //     await containerManager.HandleReelAfterInventoryDepletedAsync(container.Id);
         //     // 可以选择在这里发布一个领域事件，通知 WMS 生成一个回收空托盘的搬运任务
         //     // await _localEventBus.PublishAsync(new ContainerEmptiedEventData { ContainerId = container.Id, LocationId = container.LocationId });
         //     return;
@@ -159,7 +159,7 @@ public class MaterialFeedingAppService(
                 //         ? $"Material-Feed-{Clock.Now:yyyyMMddHHmmssfff}"
                 //         : input.OrderNo,
                 //     InventoryId = inv.Id,
-                //     ReelId = inv.ReelId,
+                //     ContainerId = inv.ContainerId,
                 //     ProductId = inv.ProductId,
                 //     Quantity = inv.Quantity,
                 //     QuantityAfter = inv.Quantity,
@@ -181,7 +181,7 @@ public class MaterialFeedingAppService(
     public async Task ConsumeAsync(ConsumeMaterialInputDto input)
     {
         // 1. 基础校验 (盘具存在、锁定状态、工单匹配等，同之前...)
-        var container = await containerRepository.FirstOrDefaultAsync(x => x.ReelNo == input.ContainerCode);
+        var container = await containerRepository.FirstOrDefaultAsync(x => x.ContainerCode == input.ContainerCode);
         if (container == null)
         {
             throw new UserFriendlyException($"未找到编号为 {input.ContainerCode} 的盘具。");
@@ -193,7 +193,7 @@ public class MaterialFeedingAppService(
         }
 
         var inventories = await inventoryRepository.GetListAsync(x =>
-            x.ReelId == container.Id && x.LockedQuantity > 0 && x.Quantity > 0);
+            x.ContainerId == container.Id && x.LockedQuantity > 0 && x.Quantity > 0);
 
 
         // 【策略 A】：辅材精确扣料模式 (如果传入了具体的 SN 或批次)

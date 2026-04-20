@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Polaris.WMS.Outbound.Domain.MiscOrders;
 using Volo.Abp.Data;
 using Volo.Abp.EntityFrameworkCore;
 
@@ -10,6 +11,8 @@ namespace Polaris.WMS.Outbound.EntityFrameworkCore;
 public class OutboundDbContext : AbpDbContext<OutboundDbContext>,IOutBoundDbContext
 {
     // 声明当前模块管辖的实体
+    public DbSet<MiscOutboundOrder> MiscOutboundOrders { get; set; }
+    public DbSet<MiscOutboundOrderDetail> MiscOutboundOrderDetails { get; set; }
 
 
     public OutboundDbContext(DbContextOptions<OutboundDbContext> options)

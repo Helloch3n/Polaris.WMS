@@ -112,7 +112,7 @@ namespace Polaris.WMS.InventoryManage.Domain.TransferOrders
         /// </summary>
         public void UpdateDetail(
             Guid detailId,
-            Guid reelId,
+            Guid containerId,
             Guid inventoryId,
             Guid productId,
             decimal qty,
@@ -128,7 +128,7 @@ namespace Polaris.WMS.InventoryManage.Domain.TransferOrders
                     .WithData("明细Id", detailId);
             }
 
-            detail.Update(reelId, inventoryId, productId, qty, sourceLocationId, targetLocationId);
+            detail.Update(containerId, inventoryId, productId, qty, sourceLocationId, targetLocationId);
         }
 
         /// <summary>
@@ -164,7 +164,7 @@ namespace Polaris.WMS.InventoryManage.Domain.TransferOrders
         /// </summary>
         public TransferOrderDetail AddDetail(
             Guid detailId,
-            Guid reelId,
+            Guid containerId,
             Guid inventoryId,
             Guid productId,
             decimal qty,
@@ -186,7 +186,7 @@ namespace Polaris.WMS.InventoryManage.Domain.TransferOrders
             var detail = new TransferOrderDetail(
                 detailId,
                 Id,
-                reelId,
+                containerId,
                 inventoryId,
                 productId,
                 qty,

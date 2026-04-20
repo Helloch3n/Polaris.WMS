@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Polaris.WMS.InventoryManage.Application.Contracts.InventoryTransactions.Dtos;
 using Polaris.WMS.InventoryManage.Domain.inventories;
-using Polaris.WMS.InventoryManage.Domain.Reels;
+using Polaris.WMS.InventoryManage.Domain.Containers;
 using Polaris.WMS.MasterData.Application.Contracts.Integration.Locations;
 using Polaris.WMS.MasterData.Application.Contracts.Integration.Products;
 using Polaris.WMS.MasterData.Application.Contracts.Integration.Warehouses;
@@ -16,7 +16,7 @@ namespace Polaris.WMS.InventoryManage.Application.InventoryTransactions
     [Authorize(WMSPermissions.InventoryOps.Default)]
     public class InventoryTransactionAppService(
         IRepository<InventoryTransaction, System.Guid> transactionRepository,
-        IRepository<Reel, Guid> reelRepository,
+        IRepository<Container, Guid> containerRepository,
         InventoryMapper mapper,
         IProductIntegrationService productIntegrationService,
         ILocationIntegrationService locationIntegrationService,
@@ -29,16 +29,16 @@ namespace Polaris.WMS.InventoryManage.Application.InventoryTransactions
             // 🌟 1. 斩断 WithDetailsAsync，只获取最纯净的本表 Queryable
             var query = await transactionRepository.GetQueryableAsync();
 
-            // 🌟 2. 处理跨实体的条件过滤 (ReelNo)
-            if (!string.IsNullOrWhiteSpace(input.ReelNo))
+            // 🌟 2. 处理跨实体的条件过滤 (ContainerCode)
+            if (!string.IsNullOrWhiteSpace(input.ContainerCode))
             {
-                var reelQuery = await reelRepository.GetQueryableAsync();
-                var reelIdsQuery = reelQuery
-                    .Where(x => x.ReelNo.Contains(input.ReelNo!))
+                var reelQuery = await containerRepository.GetQueryableAsync();
+                var containerIdsQuery = reelQuery
+                    .Where(x => x.ContainerCode.Contains(input.ContainerCode!))
                     .Select(x => x.Id);
 
                 // 将原本的 JOIN 过滤替换为 IN 过滤
-                query = query.Where(x => reelIdsQuery.Contains(x.ReelId));
+                query = query.Where(x => containerIdsQuery.Contains(x.ContainerId));
             }
 
             // 3. 处理本表的常规过滤
@@ -73,7 +73,7 @@ namespace Polaris.WMS.InventoryManage.Application.InventoryTransactions
             var dtos = items.Select(mapper.Map).ToList();
 
             // 🌟 6. 收集所需的跨模块/跨聚合 ID 集合 (使用 HashSet 去重，极致榨干性能)
-            var reelIds = items.Select(x => x.ReelId).Distinct().ToList();
+            var containerIds = items.Select(x => x.ContainerId).Distinct().ToList();
             var productIds = items.Select(x => x.ProductId).Distinct().ToList();
 
             // 合并 FromLocationId 和 ToLocationId
@@ -87,8 +87,8 @@ namespace Polaris.WMS.InventoryManage.Application.InventoryTransactions
                 .Distinct().ToList();
 
             // 🌟 7. 并行发起外部查询 (Task.WhenAll 是微服务组装的神器)
-            var reelQueryForMap = await reelRepository.GetQueryableAsync();
-            var reels = await AsyncExecuter.ToListAsync(reelQueryForMap.Where(x => reelIds.Contains(x.Id)));
+            var reelQueryForMap = await containerRepository.GetQueryableAsync();
+            var reels = await AsyncExecuter.ToListAsync(reelQueryForMap.Where(x => containerIds.Contains(x.Id)));
             var products = await productIntegrationService.GetListByIdsAsync(productIds);
             var locations = await locationIntegrationService.GetListByIdsAsync(locationIds);
             var warehouses = await warehouseIntegrationService.GetListByIdsAsync(warehouseIds);
@@ -102,10 +102,10 @@ namespace Polaris.WMS.InventoryManage.Application.InventoryTransactions
             // 🌟 9. 内存极速拼装
             foreach (var dto in dtos)
             {
-                // 拼装 ReelNo
-                if (reelMap.TryGetValue(dto.ReelId, out var reel))
+                // 拼装 ContainerCode
+                if (reelMap.TryGetValue(dto.ContainerId, out var container))
                 {
-                    dto.ReelNo = reel.ReelNo;
+                    dto.ContainerCode = container.ContainerCode;
                 }
 
                 // 拼装 ProductName

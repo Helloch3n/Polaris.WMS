@@ -7,7 +7,6 @@ using Polaris.WMS.DataSync;
 using Polaris.WMS.Inbound;
 using Polaris.WMS.Isolation;
 using Polaris.WMS.MasterData;
-using Polaris.WMS.MasterData.Reels;
 using Polaris.WMS.Outbound;
 using Polaris.WMS.ProductionInbounds;
 using Polaris.WMS.Putaway;
@@ -17,18 +16,23 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using Polaris.WMS.Inbound.Domain.Asns;
+using Polaris.WMS.Inbound.Domain.MiscOrders;
 using Polaris.WMS.Inbound.Domain.ProductionInbounds;
 using Polaris.WMS.Inbound.Domain.PurchaseOrders;
 using Polaris.WMS.Inbound.Domain.PurchaseReceipts;
 using Polaris.WMS.Inbound.EntityFrameworkCore;
+using Polaris.WMS.InventoryManage.Domain.Containers;
+using Polaris.WMS.InventoryManage.Domain.CycleCountOrders;
 using Polaris.WMS.InventoryManage.Domain.inventories;
-using Polaris.WMS.InventoryManage.Domain.Reels;
 using Polaris.WMS.InventoryManage.Domain.TransferOrders;
 using Polaris.WMS.InventoryManage.EntityFrameworkCore;
 using Polaris.WMS.MasterData.Domain.Locations;
+using Polaris.WMS.MasterData.Domain.AccountAliases;
+using Polaris.WMS.MasterData.Domain.CostCenters;
 using Polaris.WMS.MasterData.Domain.warehouses;
 using Polaris.WMS.MasterData.Domain.Zones;
 using Polaris.WMS.MasterData.EntityFrameworkCore;
+using Polaris.WMS.Outbound.Domain.MiscOrders;
 using Polaris.WMS.Outbound.EntityFrameworkCore;
 using Polaris.WMS.TaskRouting.Domain.LogisticsStrategies;
 using Polaris.WMS.TaskRouting.Domain.MoveTasks;
@@ -125,12 +129,16 @@ public class WMSDbContext :
     public DbSet<Location> Locations { get; set; }
     public DbSet<Product> Products { get; set; }
     public DbSet<Supplier> Suppliers { get; set; }
+    public DbSet<CostCenter> CostCenters { get; set; }
+    public DbSet<AccountAlias> AccountAliases { get; set; }
     #endregion
 
     #region 库存管理模块 (InventoryManage)
     public DbSet<TransferOrder> TransferOrders { get; set; }
+    public DbSet<CycleCountOrder> CycleCountOrders { get; set; }
+    public DbSet<CycleCountOrderDetail> CycleCountOrderDetails { get; set; }
     public DbSet<Inventory> Inventories { get; set; }
-    public DbSet<Reel> Reels { get; set; }
+    public DbSet<Container> Containers { get; set; }
     public DbSet<InventoryTransaction> InventoryTransactions { get; set; }
     #endregion
 
@@ -146,14 +154,17 @@ public class WMSDbContext :
     public DbSet<PurchaseOrderDetail> PurchaseOrderDetails { get; set; }
     public DbSet<PurchaseReceipt> PurchaseReceipts { get; set; }
     public DbSet<PurchaseReceiptDetail> PurchaseReceiptDetails { get; set; }
+    public DbSet<PurchaseRecord> PurchaseRecords { get; set; }
     public DbSet<AdvancedShippingNotice> Asns { get; set; }
     public DbSet<AsnDetail> AsnDetails { get; set; }
+    public DbSet<MiscInboundOrder> MiscInboundOrders { get; set; }
+    public DbSet<MiscInboundOrderDetail> MiscInboundOrderDetails { get; set; }
     // ... 其他入库表
     #endregion
     
     #region 出库模块 (Outbound)
-    // 如果需要请在此补充 Outbound 相关的 DbSet 定义，例如：
-    // public DbSet<OutboundOrder> OutboundOrders { get; set; }
+    public DbSet<MiscOutboundOrder> MiscOutboundOrders { get; set; }
+    public DbSet<MiscOutboundOrderDetail> MiscOutboundOrderDetails { get; set; }
     #endregion
 
     /// <summary>

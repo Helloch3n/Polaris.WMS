@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Polaris.WMS.InventoryManage.Domain.inventories;
-using Polaris.WMS.InventoryManage.Domain.Reels;
-using Polaris.WMS.MasterData.Reels;
+using Polaris.WMS.InventoryManage.Domain.Containers;
+using Polaris.WMS.MasterData.Containers;
 using Volo.Abp.DependencyInjection;
 using Volo.Abp.Domain.Repositories.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
@@ -12,10 +12,10 @@ namespace Polaris.WMS.InventoryManage.EntityFrameworkCore.Inventories
     public class InventoryRepository(IDbContextProvider<InventoryDbContext> dbContextProvider)
         : EfCoreRepository<InventoryDbContext, Inventory, Guid>(dbContextProvider), IInventoryRepository
     {
-        public async Task<int> GetMaxLayerOnReelAsync(Guid reelId)
+        public async Task<int> GetMaxLayerOnReelAsync(Guid containerId)
         {
             return await (await GetDbSetAsync())
-                .Where(x => x.ReelId == reelId)
+                .Where(x => x.ContainerId == containerId)
                 .MaxAsync(x => (int?)x.LayerIndex) ?? 0;
         }
 
@@ -23,21 +23,21 @@ namespace Polaris.WMS.InventoryManage.EntityFrameworkCore.Inventories
         // {
         //     var dbContext = await GetDbContextAsync();
         //     var inventories = dbContext.Set<Inventory>();
-        //     var reels = dbContext.Set<Reel>();
+        //     var reels = dbContext.Set<Container>();
         //     var products = dbContext.Set<Product>();
         //
         //     var candidates = await (
         //         from inventory in inventories
-        //         join reel in reels on inventory.ReelId equals reel.Id
+        //         join container in reels on inventory.ContainerId equals container.Id
         //         join product in products on inventory.ProductId equals product.Id
         //         where product.Code == productCode
-        //         where reel.Status == ReelStatus.Occupied
-        //         where !reel.IsLocked
+        //         where container.Status == ContainerStatus.Occupied
+        //         where !container.IsLocked
         //         select inventory)
         //         .ToListAsync();
         //
         //     return candidates
-        //         .GroupBy(x => x.ReelId)
+        //         .GroupBy(x => x.ContainerId)
         //         .Select(g => g.OrderByDescending(x => x.Index).First())
         //         .Where(x => x.AvailableQuantity >= targetLength)
         //         .OrderBy(x => x.CreationTime)

@@ -1,6 +1,6 @@
 ﻿using Polaris.WMS.BillNumbers;
 using Polaris.WMS.Inbound.Domain.Integration.Inventories;
-using Polaris.WMS.Inbound.Domain.Integration.Reels;
+using Polaris.WMS.Inbound.Domain.Integration.Containers;
 using Polaris.WMS.Inventories.Invnentory;
 using Polaris.WMS.Inventories.Ivnentory;
 using Polaris.WMS.ProductionInbounds;
@@ -18,8 +18,8 @@ namespace Polaris.WMS.Inbound.Domain.ProductionInbounds
     )
         : DomainService
     {
-        private IExternalReelProvider ExternalReelProvider =>
-            LazyServiceProvider.LazyGetRequiredService<IExternalReelProvider>();
+        private IExternalContainerProvider ExternalContainerProvider =>
+            LazyServiceProvider.LazyGetRequiredService<IExternalContainerProvider>();
 
         private IExternalInventoryProvider ExternalInventoryProvider =>
             LazyServiceProvider.LazyGetRequiredService<IExternalInventoryProvider>();
@@ -91,18 +91,18 @@ namespace Polaris.WMS.Inbound.Domain.ProductionInbounds
 
             // 2. 获取盘具实体纠正盘具库位
 
-            var reel = await ExternalReelProvider.GetReelAsync(reelId);
+            var container = await ExternalContainerProvider.GetContainerAsync(reelId);
 
-            if (reel == null)
+            if (container == null)
             {
                 throw new BusinessException($"系统中不存在 ID 为 {reelId} 的盘具！");
             }
 
-            if (reel.CurrentLocationId != actualLocationId)
+            if (container.CurrentLocationId != actualLocationId)
             {
                 // 调用盘具领域服务，执行一次隐式调拨/移库
-                await ExternalReelProvider.MoveReelAsync(
-                    reel.Id,
+                await ExternalContainerProvider.MoveContainerAsync(
+                    container.Id,
                     actualLocationId,
                     order.OrderNo
                 );

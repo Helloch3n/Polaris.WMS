@@ -3,7 +3,7 @@ using Polaris.WMS.Inventories.Invnentory.Events;
 using Polaris.WMS.Inventories.Transaction;
 using Polaris.WMS.InventoryManage.Domain.Integration.Locations;
 using Polaris.WMS.InventoryManage.Domain.inventories.Args;
-using Polaris.WMS.InventoryManage.Domain.Reels;
+using Polaris.WMS.InventoryManage.Domain.Containers;
 using Volo.Abp;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Domain.Services;
@@ -14,8 +14,8 @@ namespace Polaris.WMS.InventoryManage.Domain.inventories
 {
     public class InventoryManager(
         IInventoryRepository inventoryRepository,
-        IRepository<Reel, Guid> reelRepository,
-        ReelManager reelManager,
+        IRepository<Container, Guid> containerRepository,
+        ContainerManager containerManager,
         IRepository<InventoryTransaction, Guid> transactionRepository,
         InventoryTransactionManager inventoryTransactionManager,
         IDistributedEventBus distributedEventBus,
@@ -27,18 +27,18 @@ namespace Polaris.WMS.InventoryManage.Domain.inventories
         private IExternalLocationProvider ExternalLocationProvider =>
             LazyServiceProvider.LazyGetRequiredService<IExternalLocationProvider>();
 
-        public async Task ReceiveByReelAsync(ReceiveReelArgs args)
+        public async Task ReceiveByContainerAsync(ReceiveContainerArgs args)
         {
             //获取盘具信息
-            var reel = await reelRepository.GetAsync(args.ReelId);
+            var container = await containerRepository.GetAsync(args.ContainerId);
             //获取库位信息
             var location = await ExternalLocationProvider.GetLocationAsync(args.LocationId);
             //修改盘具为已占用
-            reel.SetOccupied();
+            container.SetOccupied();
             //刷新库位状态
             await ExternalLocationProvider.RefreshStatusByLoadAsync(args.LocationId);
-            //更新reel
-            await reelRepository.UpdateAsync(reel);
+            //更新container
+            await containerRepository.UpdateAsync(container);
 
             //循环 args.Items 创建 Inventory 实体
             foreach (var item in args.Items)
@@ -53,7 +53,7 @@ namespace Polaris.WMS.InventoryManage.Domain.inventories
 
                 //插入inventory
                 var inventory = Inventory.CreateHoldInventory(GuidGenerator.Create(),
-                    args.ReelId,
+                    args.ContainerId,
                     item.ProductId,
                     item.Qty,
                     item.Unit,
@@ -72,8 +72,8 @@ namespace Polaris.WMS.InventoryManage.Domain.inventories
                 //发入库待检事件
                 await localEventBus.PublishAsync(new HoldInventoryCreatedEto()
                 {
-                    ContainerId = args.ReelId,
-                    ContainerCode = reel.ReelNo,
+                    ContainerId = args.ContainerId,
+                    ContainerCode = container.ContainerCode,
                     CurrentLocationId = args.LocationId,
                     CurrentLocationCode = location.Code
                 });
@@ -91,7 +91,7 @@ namespace Polaris.WMS.InventoryManage.Domain.inventories
                         ? $"INV-ADD-{Clock.Now:yyyyMMddHHmmssfff}"
                         : args.OrderNo,
                     InventoryId = inventory.Id,
-                    ReelId = inventory.ReelId,
+                    ContainerId = inventory.ContainerId,
                     ProductId = inventory.ProductId,
                     Quantity = inventory.Quantity,
                     QuantityAfter = inventory.Quantity,
@@ -134,8 +134,8 @@ namespace Polaris.WMS.InventoryManage.Domain.inventories
             await inventoryRepository.UpdateAsync(inventory);
 
             // 3. 强制生成“入库/增加”流水
-            var reel = await reelRepository.GetAsync(inventory.ReelId);
-            var locationId = reel.CurrentLocationId;
+            var container = await containerRepository.GetAsync(inventory.ContainerId);
+            var locationId = container.CurrentLocationId;
 
             Guid? warehouseId = null;
             if (locationId.HasValue)
@@ -153,7 +153,7 @@ namespace Polaris.WMS.InventoryManage.Domain.inventories
                     ? $"INV-ADD-{Clock.Now:yyyyMMddHHmmssfff}"
                     : businessOrderNo,
                 InventoryId = inventory.Id,
-                ReelId = inventory.ReelId,
+                ContainerId = inventory.ContainerId,
                 ProductId = inventory.ProductId,
                 Quantity = qty,
                 QuantityAfter = inventory.Quantity,
@@ -197,8 +197,8 @@ namespace Polaris.WMS.InventoryManage.Domain.inventories
             inventory.DeductQuantity(qty);
 
             // 3. 强制生成“出库/扣减”流水
-            var reel = await reelRepository.GetAsync(inventory.ReelId);
-            var locationId = reel.CurrentLocationId;
+            var container = await containerRepository.GetAsync(inventory.ContainerId);
+            var locationId = container.CurrentLocationId;
 
             Guid? warehouseId = null;
             if (locationId.HasValue)
@@ -221,7 +221,7 @@ namespace Polaris.WMS.InventoryManage.Domain.inventories
                     ? $"INV-DEDUCT-{Clock.Now:yyyyMMddHHmmssfff}"
                     : businessOrderNo,
                 InventoryId = inventory.Id,
-                ReelId = inventory.ReelId,
+                ContainerId = inventory.ContainerId,
                 ProductId = inventory.ProductId,
                 Quantity = qty,
                 QuantityAfter = inventory.Quantity,
@@ -259,9 +259,9 @@ namespace Polaris.WMS.InventoryManage.Domain.inventories
             await inventoryRepository.UpdateAsync(inventory);
 
             // B. 盘具生命周期处理
-            if (inventory.ReelId != Guid.Empty)
+            if (inventory.ContainerId != Guid.Empty)
             {
-                var locationId = await reelManager.HandleReelAfterInventoryDepletedAsync(inventory.ReelId);
+                var locationId = await containerManager.HandleReelAfterInventoryDepletedAsync(inventory.ContainerId);
 
                 // C. 库位释放处理 (如果盘具被删了，或者空了，检查所在的库位是否需要释放)
                 if (locationId.HasValue)

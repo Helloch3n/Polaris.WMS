@@ -117,6 +117,18 @@ public class PurchaseOrder : FullAuditedAggregateRoot<Guid>
             Status = PurchaseOrderStatus.PartialReceived;
         }
     }
+
+    public void AddReceivedQty(Guid poDetailId, decimal qty)
+    {
+        var detail = _details.FirstOrDefault(x => x.Id == poDetailId);
+        if (detail == null)
+        {
+            throw new UserFriendlyException($"采购单 {PoNo} 中不存在明细 {poDetailId}！");
+        }
+
+        detail.AddReceivedQty(qty);
+        RefreshStatus();
+    }
     
     /// <summary>
     /// 业务行为：手工强制结案

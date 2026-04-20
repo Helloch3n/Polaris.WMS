@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Polaris.WMS.BillNumbers;
-using Polaris.WMS.MasterData.Reels.Events;
 using Polaris.WMS.TaskRouting.Application.Contracts.MoveTasks;
 using Polaris.WMS.TaskRouting.Application.Contracts.MoveTasks.Dtos;
 using Polaris.WMS.TaskRouting.Domain.Integration.Inventory;
@@ -23,7 +22,7 @@ namespace Polaris.WMS.TaskRouting.Application.MoveTasks
         IDistributedEventBus distributedEventBus,
         IBillNumberGenerator billNumberGenerator,
         MoveTaskManager moveTaskManager,
-        IExternalReelProvider externalReelProvider)
+        IExternalContainerProvider externalContainerProvider)
         : ApplicationService, IMoveTaskAppService
     {
         // /// <summary>

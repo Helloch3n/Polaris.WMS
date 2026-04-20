@@ -2,7 +2,7 @@
 
 namespace Polaris.WMS.TaskRouting.Domain.Integration.Inventory;
 
-public interface IExternalReelProvider : ITransientDependency
+public interface IExternalContainerProvider : ITransientDependency
 {
-    Task MoveReelAsync(Guid reelId, Guid targetLocationId);
+    Task MoveContainerAsync(Guid containerId, Guid targetLocationId);
 }

@@ -6,6 +6,6 @@ namespace Polaris.WMS.InventoryManage.Application.Contracts.Integration.inventor
 [RemoteService(IsEnabled = false)]
 public interface IInventoryIntegrationService : IApplicationService
 {
-    public Task<List<InventoryIntegrationDto>> GetInventoryByReels(List<Guid> reelIds);
-    Task ReceiveProductionAsync(ProductionReceiveByReelInput input);
+    public Task<List<InventoryIntegrationDto>> GetInventoryByContainers(List<Guid> containerIds);
+    Task ReceiveProductionAsync(ProductionReceiveByContainerInput input);
 }

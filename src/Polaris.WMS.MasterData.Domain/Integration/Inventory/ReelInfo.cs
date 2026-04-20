@@ -1,6 +1,6 @@
 ﻿namespace Polaris.WMS.MasterData.Domain.Integration.Inventory;
 
-public class ReelInfo
+public class ContainerInfo
 {
     public Guid Id { get; set; }
 

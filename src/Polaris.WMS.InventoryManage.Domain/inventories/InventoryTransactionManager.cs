@@ -36,7 +36,7 @@ namespace Polaris.WMS.InventoryManage.Domain.inventories
                 args.Type,
                 args.BillNo,
                 args.InventoryId,
-                args.ReelId,
+                args.ContainerId,
                 args.ProductId,
                 args.Quantity,
                 args.QuantityAfter,

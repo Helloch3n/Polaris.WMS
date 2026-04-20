@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System;
 using Polaris.WMS.Inbound.EntityFrameworkCore;
+using Polaris.WMS.InventoryManage.Domain.Containers;
 using Polaris.WMS.InventoryManage.Domain.inventories;
-using Polaris.WMS.InventoryManage.Domain.Reels;
 using Polaris.WMS.InventoryManage.EntityFrameworkCore;
 using Polaris.WMS.InventoryManage.EntityFrameworkCore.Inventories;
 using Polaris.WMS.MasterData.Domain.Locations;

@@ -88,6 +88,18 @@ public class AdvancedShippingNotice : FullAuditedAggregateRoot<Guid>
         if (isAllCompleted) Status = AsnStatus.Completed;
         else if (isAnyReceived) Status = AsnStatus.Receiving;
     }
+
+    public void AddReceivedQty(Guid asnDetailId, decimal qty)
+    {
+        var detail = _details.FirstOrDefault(x => x.Id == asnDetailId);
+        if (detail == null)
+        {
+            throw new UserFriendlyException($"ASN 单据 {AsnNo} 中不存在明细 {asnDetailId}！");
+        }
+
+        detail.AddReceivedQty(qty);
+        RefreshStatus();
+    }
     
     /// <summary>
     /// 充血模型：更新主表基础信息

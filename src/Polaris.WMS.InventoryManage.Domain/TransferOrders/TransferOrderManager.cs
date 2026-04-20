@@ -1,5 +1,5 @@
 using Polaris.WMS.BillNumbers;
-using Polaris.WMS.InventoryManage.Domain.Reels;
+using Polaris.WMS.InventoryManage.Domain.Containers;
 using Polaris.WMS.TransferOrders;
 using Volo.Abp;
 using Volo.Abp.Domain.Repositories;
@@ -12,9 +12,9 @@ namespace Polaris.WMS.InventoryManage.Domain.TransferOrders
     /// </summary>
     public class TransferOrderManager(
         IRepository<TransferOrder, Guid> transferOrderRepository,
-        IRepository<Reel, Guid> reelRepository,
+        IRepository<Container, Guid> containerRepository,
         IBillNumberGenerator billNumberGenerator,
-        ReelManager reelManager)
+        ContainerManager containerManager)
         : DomainService
     {
         /// <summary>
@@ -67,17 +67,17 @@ namespace Polaris.WMS.InventoryManage.Domain.TransferOrders
                 order.MarkDetailAsCompleted(detail.Id);
             }
 
-            // 3. 按 ReelId + TargetLocationId 去重，避免同一盘具重复移库
+            // 3. 按 ContainerId + TargetLocationId 去重，避免同一盘具重复移库
             var uniqueTransfers = order.Details
-                .GroupBy(x => new { x.ReelId, x.TargetLocationId })
+                .GroupBy(x => new { x.ContainerId, x.TargetLocationId })
                 .Select(x => x.First())
                 .ToList();
 
             // 4. 执行物理移库（由盘具领域服务负责位置与流水）
             foreach (var detail in uniqueTransfers)
             {
-                await reelManager.TransferLocationAsync(
-                    detail.ReelId,
+                await containerManager.TransferLocationAsync(
+                    detail.ContainerId,
                     detail.TargetLocationId,
                     order.OrderNo
                 );
@@ -109,16 +109,16 @@ namespace Polaris.WMS.InventoryManage.Domain.TransferOrders
             }
 
             // 3. 解锁该单据明细关联的盘具
-            var reelIds = order.Details.Select(x => x.ReelId).Distinct().ToList();
-            if (reelIds.Count > 0)
+            var containerIds = order.Details.Select(x => x.ContainerId).Distinct().ToList();
+            if (containerIds.Count > 0)
             {
-                var reels = await reelRepository.GetListAsync(x => reelIds.Contains(x.Id));
-                foreach (var reel in reels)
+                var reels = await containerRepository.GetListAsync(x => containerIds.Contains(x.Id));
+                foreach (var container in reels)
                 {
-                    if (reel.IsLocked)
+                    if (container.IsLocked)
                     {
-                        reel.UnLock();
-                        await reelRepository.UpdateAsync(reel);
+                        container.UnLock();
+                        await containerRepository.UpdateAsync(container);
                     }
                 }
             }

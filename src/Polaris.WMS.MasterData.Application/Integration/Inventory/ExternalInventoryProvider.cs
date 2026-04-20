@@ -9,9 +9,9 @@ namespace Polaris.WMS.MasterData.Application.Integration.Inventory;
 public class ExternalInventoryProvider(IInventoryIntegrationService inventoryIntegrationService)
     : ApplicationService, IExternalInventoryProvider
 {
-    public async Task<List<InventoryInfo>> GetInventoryByReels(List<Guid> reelIds)
+    public async Task<List<InventoryInfo>> GetInventoryByContainers(List<Guid> containerIds)
     {
-        var inventory = await inventoryIntegrationService.GetInventoryByReels(reelIds);
+        var inventory = await inventoryIntegrationService.GetInventoryByContainers(containerIds);
         var inventoryInfo = inventory.Select(x => new InventoryInfo
         {
             Id = x.Id,

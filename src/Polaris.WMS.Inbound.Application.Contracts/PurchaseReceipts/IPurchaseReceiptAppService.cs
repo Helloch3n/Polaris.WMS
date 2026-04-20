@@ -25,5 +25,15 @@ public interface IPurchaseReceiptAppService : IApplicationService
     /// 更新采购收货明细 ERP 同步状态。
     /// </summary>
     Task ChangeDetailErpSyncStatusAsync(ChangePurchaseReceiptDetailErpSyncStatusDto input);
+
+    /// <summary>
+    /// 向采购收货明细新增收货记录。
+    /// </summary>
+    Task<PurchaseRecordDto> AddRecordsAsync(AddPurchaseReceiptRecordsDto input);
+
+    /// <summary>
+    /// 审核并执行采购收货单。
+    /// </summary>
+    Task ApproveAndExecuteAsync(Guid id);
 }
 

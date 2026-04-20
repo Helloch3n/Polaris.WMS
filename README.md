@@ -1,4 +1,4 @@
-﻿# Polaris.WMS
+# Polaris.WMS
 
 ## About this solution
 
@@ -82,7 +82,7 @@ export PATH="$PATH:/Users/helloch3n/.dotnet/tools"
 生成本次迁移：
 
 ```bash
-dotnet ef migrations add ChangePurchaseReceiptLocationCodeToString --project src/Polaris.WMS.EntityFrameworkCore --startup-project src/Polaris.WMS.Web --context WMSDbContext
+dotnet ef migrations add editmixinbound --project src/Polaris.WMS.EntityFrameworkCore --startup-project src/Polaris.WMS.Web --context WMSDbContext
 ```
 
 更新数据库：

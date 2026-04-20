@@ -14,19 +14,25 @@ public class PurchaseReceiptDetailConfiguration : IEntityTypeConfiguration<Purch
 
         builder.Property(x => x.ProductCode).IsRequired().HasMaxLength(64);
         builder.Property(x => x.ProductName).IsRequired().HasMaxLength(256);
-        builder.Property(x => x.ContainerCode).IsRequired().HasMaxLength(64);
-        builder.Property(x => x.LocationCode).IsRequired().HasMaxLength(64);
         builder.Property(x => x.BatchNo).HasMaxLength(64);
         builder.Property(x => x.ErpSyncErrorMessage).HasMaxLength(1000);
 
+        builder.Property(x => x.ExpectedQuantity).HasPrecision(18, 4);
         builder.Property(x => x.ReceivedQuantity).HasPrecision(18, 4);
         builder.Property(x => x.ErpSyncStatus).HasConversion<int>().IsRequired();
 
         builder.HasIndex(x => x.PurchaseReceiptId);
         builder.HasIndex(x => x.ProductId);
-        builder.HasIndex(x => x.ContainerId);
-        builder.HasIndex(x => x.LocationId);
         builder.HasIndex(x => x.ErpSyncStatus);
+
+        builder.HasMany(x => x.Records)
+            .WithOne()
+            .HasForeignKey(x => x.PurchaseReceiptDetailId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Metadata.FindNavigation(nameof(PurchaseReceiptDetail.Records))?
+            .SetPropertyAccessMode(PropertyAccessMode.Field);
     }
 }
 

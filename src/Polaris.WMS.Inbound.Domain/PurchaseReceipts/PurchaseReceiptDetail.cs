@@ -1,5 +1,6 @@
 using Volo.Abp.Domain.Entities;
 using Volo.Abp;
+using System.ComponentModel.DataAnnotations;
 
 namespace Polaris.WMS.Inbound.Domain.PurchaseReceipts;
 
@@ -11,16 +12,14 @@ namespace Polaris.WMS.Inbound.Domain.PurchaseReceipts;
 /// </summary>
 public class PurchaseReceiptDetail : Entity<Guid>
 {
-    
     /// <summary>
     /// 关联的采购收货单（聚合根）Id。
     /// </summary>
     public Guid PurchaseReceiptId { get; private set; }
 
-    /// <summary>
-    /// 来源追溯：可选的源明细 Id（例如 ASN 明细或采购订单明细的 Id）。
-    /// </summary>
-    public Guid? SourceDetailId { get; private set; }
+    public Guid? SourceAsnLineId { get; private set; }
+    
+    public Guid? SourcePoLineId { get; private set; }
 
     /// <summary>
     /// 物料 Id，仅保存 Id 以遵循限界上下文边界规则。
@@ -30,38 +29,21 @@ public class PurchaseReceiptDetail : Entity<Guid>
     /// <summary>
     /// 物料名称快照。
     /// </summary>
-    public string ProductName { get; private set; }
+    public string ProductName { get; private set; } = string.Empty;
 
     /// <summary>
     /// 物料编码快照。
     /// </summary>
-    public string ProductCode { get; private set; }
+    public string ProductCode { get; private set; } = string.Empty;
+
+    public decimal ExpectedQuantity { get; private set; }
 
     /// <summary>
     /// 实际接收的数量（物理托盘上的数量）。
     /// 注意：库存相关的可用量/已分配量不应在此实体中计算或存储。
     /// </summary>
+    [ConcurrencyCheck]
     public decimal ReceivedQuantity { get; private set; }
-
-    /// <summary>
-    /// 容器 Id（托盘/箱 Id）。
-    /// </summary>
-    public Guid ContainerId { get; private set; }
-
-    /// <summary>
-    /// 容器编码快照。
-    /// </summary>
-    public string ContainerCode { get; private set; }
-
-    /// <summary>
-    /// 物理位置 Id：月台或收货暂存区的 Location Id（仅保存 Id）。
-    /// </summary>
-    public Guid LocationId { get; private set; }
-
-    /// <summary>
-    /// 位置编码快照。
-    /// </summary>
-    public string LocationCode { get; private set; }
 
     /// <summary>
     /// 批次号（如果有）。
@@ -78,6 +60,13 @@ public class PurchaseReceiptDetail : Entity<Guid>
     /// </summary>
     public string? ErpSyncErrorMessage { get; private set; }
 
+    private readonly List<PurchaseRecord> _records = new();
+
+    /// <summary>
+    /// 收货记录（孙实体）。
+    /// </summary>
+    public IReadOnlyCollection<PurchaseRecord> Records => _records;
+
     protected PurchaseReceiptDetail() { }
 
     internal PurchaseReceiptDetail(
@@ -86,28 +75,78 @@ public class PurchaseReceiptDetail : Entity<Guid>
         Guid productId,
         string productCode,
         string productName,
-        decimal receivedQuantity,
-        Guid containerId,
-        string containerCode,
-        Guid locationId,
-        string locationCode,
-        Guid? sourceDetailId = null,
+        decimal expectedQuantity,
+        Guid? sourceAsnLineId = null,
+        Guid? sourcePoLineId = null,
         string? batchNo = null) : base(id)
     {
         PurchaseReceiptId = purchaseReceiptId;
         ProductId = productId;
         ProductCode = Check.NotNullOrWhiteSpace(productCode, nameof(productCode), maxLength: 64);
         ProductName = Check.NotNullOrWhiteSpace(productName, nameof(productName), maxLength: 256);
-        ReceivedQuantity = receivedQuantity;
-        ContainerId = containerId;
-        ContainerCode = Check.NotNullOrWhiteSpace(containerCode, nameof(containerCode), maxLength: 64);
-        LocationId = locationId;
-        LocationCode = Check.NotNullOrWhiteSpace(locationCode, nameof(locationCode), maxLength: 64);
-        SourceDetailId = sourceDetailId;
+        ExpectedQuantity = expectedQuantity;
+        ReceivedQuantity = 0;
+        SourceAsnLineId = sourceAsnLineId;
+        SourcePoLineId = sourcePoLineId;
         BatchNo = batchNo?.Trim();
 
         // 初始状态为未同步
         ErpSyncStatus = PurchaseReceiptErpSyncStatus.NotSynced;
+    }
+
+    /// <summary>
+    /// 新增收货记录，并同步累计实收数量。
+    /// </summary>
+    public PurchaseRecord AddRecord(
+        Guid id,
+        decimal receivedQuantity,
+        Guid containerId,
+        string containerCode,
+        Guid locationId,
+        string locationCode,
+        string? batchNo = null,
+        string? supplierBatchNo = null)
+    {
+        if (receivedQuantity <= 0)
+        {
+            throw new BusinessException("收货记录数量必须大于 0。");
+        }
+
+        if (containerId == Guid.Empty)
+        {
+            throw new BusinessException("收货记录的容器Id不能为空。");
+        }
+
+        if (locationId == Guid.Empty)
+        {
+            throw new BusinessException("收货记录的库位Id不能为空。");
+        }
+
+        var nextQuantity = ReceivedQuantity + receivedQuantity;
+        if (nextQuantity > ExpectedQuantity)
+        {
+            throw new BusinessException("累计实收数量不能大于应收数量。");
+        }
+
+        var record = new PurchaseRecord(
+            id,
+            PurchaseReceiptId,
+            Id,
+            SourcePoLineId,
+            ProductId,
+            ProductName,
+            ProductCode,
+            receivedQuantity,
+            containerId,
+            containerCode,
+            locationId,
+            locationCode,
+            batchNo,
+            supplierBatchNo);
+
+        _records.Add(record);
+        ReceivedQuantity = nextQuantity;
+        return record;
     }
 
     /// <summary>

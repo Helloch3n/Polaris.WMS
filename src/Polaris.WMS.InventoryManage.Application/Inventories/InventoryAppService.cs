@@ -2,7 +2,7 @@
 using Polaris.WMS.InventoryManage.Application.Contracts.Inventories;
 using Polaris.WMS.InventoryManage.Application.Contracts.Inventories.Dtos;
 using Polaris.WMS.InventoryManage.Domain.inventories;
-using Polaris.WMS.InventoryManage.Domain.Reels;
+using Polaris.WMS.InventoryManage.Domain.Containers;
 using Polaris.WMS.MasterData.Application.Contracts.Integration.Locations;
 using Polaris.WMS.MasterData.Application.Contracts.Integration.Products;
 using Polaris.WMS.MasterData.Application.Contracts.Integration.Warehouses;
@@ -19,7 +19,7 @@ namespace Polaris.WMS.InventoryManage.Application.Inventories
         IRepository<Inventory, Guid> inventoryRepository,
         InventoryMappers inventoryMapper,
         InventoryManager inventoryManager,
-        IRepository<Reel, Guid> reelRepository,
+        IRepository<Container, Guid> containerRepository,
         IProductIntegrationService productIntegrationService,
         ILocationIntegrationService locationIntegrationService,
         IZoneIntegrationService zoneIntegrationService,
@@ -31,14 +31,14 @@ namespace Polaris.WMS.InventoryManage.Application.Inventories
         {
             var query = await inventoryRepository.GetQueryableAsync();
 
-            if (!string.IsNullOrWhiteSpace(input.ReelNo))
+            if (!string.IsNullOrWhiteSpace(input.ContainerCode))
             {
-                var reelQuery = await reelRepository.GetQueryableAsync();
-                var reelIdsQuery = reelQuery
-                    .Where(x => x.ReelNo.Contains(input.ReelNo))
+                var reelQuery = await containerRepository.GetQueryableAsync();
+                var containerIdsQuery = reelQuery
+                    .Where(x => x.ContainerCode.Contains(input.ContainerCode))
                     .Select(x => x.Id);
 
-                query = query.Where(x => reelIdsQuery.Contains(x.ReelId));
+                query = query.Where(x => containerIdsQuery.Contains(x.ContainerId));
             }
 
             if (input.ProductId.HasValue)
@@ -62,18 +62,18 @@ namespace Polaris.WMS.InventoryManage.Application.Inventories
                     return new PagedResultDto<InventoryDto>(0, new List<InventoryDto>());
                 }
 
-                var filterReelQuery = await reelRepository.GetQueryableAsync();
-                var filterReelIdsQuery = filterReelQuery
+                var filterReelQuery = await containerRepository.GetQueryableAsync();
+                var filterContainerIdsQuery = filterReelQuery
                     .Where(x => x.CurrentLocationId.HasValue && locationIds.Contains(x.CurrentLocationId.Value))
                     .Select(x => x.Id);
 
-                query = query.Where(x => filterReelIdsQuery.Contains(x.ReelId));
+                query = query.Where(x => filterContainerIdsQuery.Contains(x.ContainerId));
             }
 
             var totalCount = await AsyncExecuter.CountAsync(query);
 
             query = query
-                .OrderBy(x => x.ReelId)
+                .OrderBy(x => x.ContainerId)
                 .ThenByDescending(x => x.LayerIndex)
                 .PageBy(input.SkipCount, input.MaxResultCount);
 
@@ -86,12 +86,12 @@ namespace Polaris.WMS.InventoryManage.Application.Inventories
 
             var result = items.Select(inventoryMapper.Map).ToList();
 
-            var reelIds = items.Select(x => x.ReelId).Distinct().ToList();
+            var containerIds = items.Select(x => x.ContainerId).Distinct().ToList();
             var productIds = items.Select(x => x.ProductId).Distinct().ToList();
 
-            // 查 Reel (本地模块) 和 Product (跨模块)
-            var reelQueryForMap = await reelRepository.GetQueryableAsync();
-            var reelsTask = AsyncExecuter.ToListAsync(reelQueryForMap.Where(x => reelIds.Contains(x.Id)));
+            // 查 Container (本地模块) 和 Product (跨模块)
+            var reelQueryForMap = await containerRepository.GetQueryableAsync();
+            var reelsTask = AsyncExecuter.ToListAsync(reelQueryForMap.Where(x => containerIds.Contains(x.Id)));
             var productsTask = productIntegrationService.GetListByIdsAsync(productIds);
 
             await Task.WhenAll(reelsTask, productsTask);
@@ -123,12 +123,12 @@ namespace Polaris.WMS.InventoryManage.Application.Inventories
             // 内存组装 O(1)
             foreach (var dto in result)
             {
-                if (reelMap.TryGetValue(dto.ReelId, out var reel))
+                if (reelMap.TryGetValue(dto.ContainerId, out var container))
                 {
-                    dto.ReelNo = reel.ReelNo;
+                    dto.ContainerCode = container.ContainerCode;
 
-                    if (reel.CurrentLocationId.HasValue &&
-                        locationMap.TryGetValue(reel.CurrentLocationId.Value, out var location))
+                    if (container.CurrentLocationId.HasValue &&
+                        locationMap.TryGetValue(container.CurrentLocationId.Value, out var location))
                     {
                         dto.LocationCode = location.Code;
 
@@ -159,7 +159,7 @@ namespace Polaris.WMS.InventoryManage.Application.Inventories
         //public async Task<InventoryDto> ProductionReceiveAsync(ProductionReceiveInput input)
         //{
         //    var inventory = await _inventoryManager.ProductionReceiveAsync(
-        //        input.ReelId,
+        //        input.ContainerId,
         //        input.ProductId,
         //        input.Quantity,
         //        input.Weight,
@@ -171,7 +171,7 @@ namespace Polaris.WMS.InventoryManage.Application.Inventories
         //        input.Unit);
 
         //    // 閲嶆柊鏌ヨ浠ュ姞杞藉鑸睘鎬?        //    var query = await _inventoryRepository.WithDetailsAsync(
-        //        x => x.Reel, x => x.Reel.CurrentLocation, x => x.Product);
+        //        x => x.Container, x => x.Container.CurrentLocation, x => x.Product);
 
         //    var entity = await AsyncExecuter.FirstOrDefaultAsync(
         //        query.Where(x => x.Id == inventory.Id));

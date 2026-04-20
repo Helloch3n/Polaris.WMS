@@ -53,9 +53,14 @@ public class CreatePurchaseReceiptDto : IValidationEnabled
 public class CreatePurchaseReceiptDetailDto : IValidationEnabled
 {
     /// <summary>
-    /// 来源明细 Id（可空）。
+        /// 来源 ASN 明细 Id（可空）。
     /// </summary>
-    public Guid? SourceDetailId { get; set; }
+    public Guid? SourceAsnLineId { get; set; }
+
+    /// <summary>
+    /// 来源采购单明细 Id（可空）。
+    /// </summary>
+    public Guid? SourcePoLineId { get; set; }
 
     /// <summary>
     /// 物料 Id。
@@ -81,36 +86,10 @@ public class CreatePurchaseReceiptDetailDto : IValidationEnabled
     /// 接收数量。
     /// </summary>
     [Range(typeof(decimal), "0.0001", "79228162514264337593543950335")]
-    public decimal ReceivedQuantity { get; set; }
+    public decimal ExpectedQuantity { get; set; }
 
     /// <summary>
-    /// 容器 Id。
-    /// </summary>
-    [Required]
-    public Guid ContainerId { get; set; }
-
-    /// <summary>
-    /// 容器编码。
-    /// </summary>
-    [Required]
-    [MaxLength(64)]
-    public string ContainerCode { get; set; } = string.Empty;
-
-    /// <summary>
-    /// 库位 Id。
-    /// </summary>
-    [Required]
-    public Guid LocationId { get; set; }
-
-    /// <summary>
-    /// 库位编码快照。
-    /// </summary>
-    [Required]
-    [MaxLength(64)]
-    public string LocationCode { get; set; } = string.Empty;
-
-    /// <summary>
-    /// 批次号。
+    /// 批次号（可空）。
     /// </summary>
     [MaxLength(64)]
     public string? BatchNo { get; set; }

@@ -7,10 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Configurations\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\Polaris.WMS.Outbound.Domain\Polaris.WMS.Outbound.Domain.csproj" />
     </ItemGroup>
 

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Polaris.WMS.Inbound.Domain.Asns;
+using Polaris.WMS.Inbound.Domain.MiscOrders;
 using Polaris.WMS.Inbound.Domain.ProductionInbounds;
 using Polaris.WMS.Inbound.Domain.PurchaseOrders;
 using Polaris.WMS.Inbound.Domain.PurchaseReceipts;
@@ -20,8 +21,11 @@ public class InboundDbContext : AbpDbContext<InboundDbContext>,IInboundDbContext
     public DbSet<PurchaseOrderDetail> PurchaseOrderDetails { get; set; }
     public DbSet<PurchaseReceipt> PurchaseReceipts { get; set; }
     public DbSet<PurchaseReceiptDetail> PurchaseReceiptDetails { get; set; }
+    public DbSet<PurchaseRecord> PurchaseRecords { get; set; }
     public DbSet<AdvancedShippingNotice> Asns { get; set; }
     public DbSet<AsnDetail> AsnDetails { get; set; }
+    public DbSet<MiscInboundOrder> MiscInboundOrders { get; set; }
+    public DbSet<MiscInboundOrderDetail> MiscInboundOrderDetails { get; set; }
 
     public InboundDbContext(DbContextOptions<InboundDbContext> options)
         : base(options)

@@ -25,6 +25,10 @@ public class GenerateQcMoveTaskHandler(
             MoveTaskType.MoveToQc,
             eventData.CurrentLocationId // 此属性需在事件载体中补充
         );
+        if (targetZoneId == Guid.Empty)
+        {
+            return;
+        }
 
         // 2. 微观计算：找格子
         var targetLocationInfo = await allocationStrategy.AllocateLocationAsync(

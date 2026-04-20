@@ -6,7 +6,7 @@ namespace Polaris.WMS.InventoryManage.Application.Contracts.InventoryTransaction
     public class InventoryTransactionSearchDto : PagedAndSortedResultRequestDto
     {
         public string? BillNo { get; set; }
-        public string? ReelNo { get; set; }
+        public string? ContainerCode { get; set; }
         public Guid? ProductId { get; set; }
         public DateTime? StartTime { get; set; }
         public DateTime? EndTime { get; set; }

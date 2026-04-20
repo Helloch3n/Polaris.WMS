@@ -15,8 +15,8 @@ namespace Polaris.WMS.InventoryManage.Application.Contracts.InventoryTransaction
         public string Remark { get; set; }
 
         // 关联
-        public Guid ReelId { get; set; }
-        public string ReelNo { get; set; }
+        public Guid ContainerId { get; set; }
+        public string ContainerCode { get; set; }
 
         public Guid ProductId { get; set; }
         public string ProductName { get; set; }

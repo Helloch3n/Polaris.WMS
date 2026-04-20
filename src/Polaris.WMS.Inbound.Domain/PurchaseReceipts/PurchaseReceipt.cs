@@ -12,17 +12,17 @@ public class PurchaseReceipt : FullAuditedAggregateRoot<Guid>
     /// <summary>
     /// WMS 内部收货流水号（如：PR-20231001-001）。
     /// </summary>
-    public string ReceiptNo { get; private set; }
+    public string ReceiptNo { get; private set; } = string.Empty;
 
     /// <summary>
     /// 源单据类型（例如 ASN/PO）。
     /// </summary>
-    public string SourceDocType { get; private set; }
+    public string SourceDocType { get; private set; } = string.Empty;
 
     /// <summary>
     /// 源单据号（ASN 单号或 PO 单号）。
     /// </summary>
-    public string SourceDocNo { get; private set; }
+    public string SourceDocNo { get; private set; } = string.Empty;
 
     /// <summary>
     /// 供应商 Id（可空）。
@@ -73,12 +73,9 @@ public class PurchaseReceipt : FullAuditedAggregateRoot<Guid>
         Guid productId,
         string productCode,
         string productName,
-        decimal receivedQuantity,
-        Guid containerId,
-        string containerCode,
-        Guid locationId,
-        string locationCode,
-        Guid? sourceDetailId = null,
+        decimal expectedQuantity,
+        Guid? sourceAsnLineId = null,
+        Guid? sourcePoLineId = null,
         string? batchNo = null)
     {
         var detail = new PurchaseReceiptDetail(
@@ -87,12 +84,9 @@ public class PurchaseReceipt : FullAuditedAggregateRoot<Guid>
             productId,
             productCode,
             productName,
-            receivedQuantity,
-            containerId,
-            containerCode,
-            locationId,
-            locationCode,
-            sourceDetailId,
+            expectedQuantity,
+            sourceAsnLineId,
+            sourcePoLineId,
             batchNo
         );
 

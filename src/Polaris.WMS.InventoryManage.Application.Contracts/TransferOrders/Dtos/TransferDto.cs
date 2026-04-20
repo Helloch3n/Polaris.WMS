@@ -113,7 +113,7 @@ namespace Polaris.WMS.InventoryManage.Application.Contracts.TransferOrders.Dtos
         /// <summary>
         /// 盘具Id。
         /// </summary>
-        public Guid ReelId { get; set; }
+        public Guid ContainerId { get; set; }
 
         /// <summary>
         /// 盘号。

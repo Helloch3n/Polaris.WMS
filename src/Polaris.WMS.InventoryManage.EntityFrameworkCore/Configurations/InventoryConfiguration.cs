@@ -44,7 +44,7 @@ namespace Polaris.WMS.InventoryManage.EntityFrameworkCore.Configurations
             builder.Property(x => x.RelatedOrderLineNo).HasMaxLength(50);
             builder.Property(x => x.Unit).HasMaxLength(20);
 
-            builder.HasIndex(x => x.ReelId);
+            builder.HasIndex(x => x.ContainerId);
             builder.HasIndex(x => x.ProductId);
             builder.HasIndex(x => x.Type);
             builder.HasIndex(x => x.Status);

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Polaris.WMS.InventoryManage.Domain.inventories;
-using Polaris.WMS.InventoryManage.Domain.Reels;
+using Polaris.WMS.InventoryManage.Domain.Containers;
 using Polaris.WMS.InventoryManage.EntityFrameworkCore.Inventories;
 using Volo.Abp.Modularity;
 
@@ -16,7 +16,7 @@ public class PolarisWmsInventoryEntityFrameworkCoreModule : AbpModule
 
             // 注册库存模块的自定义仓储
             options.AddRepository<Inventory, InventoryRepository>();
-            //options.AddRepository<Reel, ReelRepository>();
+            //options.AddRepository<Container, ContainerRepository>();
         });
     }
 }

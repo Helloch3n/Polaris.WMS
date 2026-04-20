@@ -1,6 +1,7 @@
 ﻿using Polaris.WMS.Inbound.Application.Contracts;
 using Polaris.WMS.Inbound.Domain;
 using Polaris.WMS.InventoryManage.Application.Contracts;
+using Polaris.WMS.MasterData.Application.Contracts;
 using Volo.Abp.Application;
 using Volo.Abp.Mapperly;
 using Volo.Abp.Modularity;
@@ -13,7 +14,8 @@ namespace Polaris.WMS.Inbound.Application;
     typeof(AbpMapperlyModule), // 3. 依赖映射工具包
     typeof(WMSApplicationContractsModule), // (可选) 如果你的 DTO 全写在全局 Contracts 里，就加上这个
     typeof(PolarisWmsInboundApplicationContractsModule),
-    typeof(PolarisWmsInventoryApplicationContractsModule)
+    typeof(PolarisWmsInventoryApplicationContractsModule),
+    typeof(PolarisWmsMasterDataApplicationContractsModule)
 )]
 public class PolarisWmsInboundApplicationModule: AbpModule
 {

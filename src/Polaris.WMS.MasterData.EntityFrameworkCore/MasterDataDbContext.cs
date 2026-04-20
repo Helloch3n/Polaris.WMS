@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Polaris.WMS.MasterData.Domain.AccountAliases;
+using Polaris.WMS.MasterData.Domain.CostCenters;
 using Polaris.WMS.MasterData.Domain.Locations;
 using Polaris.WMS.MasterData.Domain.Zones;
 using Polaris.WMS.Users;
@@ -18,6 +20,8 @@ public class MasterDataDbContext : AbpDbContext<MasterDataDbContext>
     public DbSet<Product> Products { get; set; }
     public DbSet<UserWarehouse> UserWarehouses { get; set; }
     public DbSet<Supplier> Suppliers { get; set; }
+    public DbSet<CostCenter> CostCenters { get; set; }
+    public DbSet<AccountAlias> AccountAliases { get; set; }
 
     public MasterDataDbContext(DbContextOptions<MasterDataDbContext> options)
         : base(options)

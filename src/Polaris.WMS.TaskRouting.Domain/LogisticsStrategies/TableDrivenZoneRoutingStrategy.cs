@@ -19,7 +19,8 @@ public class TableDrivenZoneRoutingStrategy(
         var activeRules = await ruleRepository.GetListAsync(x => x.IsActive && x.TaskType == taskType);
         if (activeRules == null || !activeRules.Any())
         {
-            throw new UserFriendlyException($"未找到适用的物流路由规则！");
+            //throw new UserFriendlyException($"未找到适用的物流路由规则！");
+            return Guid.Empty; // 没有规则时返回空，表示不进行路由调整
         }
 
         activeRules.OrderBy(x => x.Priority);
@@ -33,6 +34,7 @@ public class TableDrivenZoneRoutingStrategy(
             if (matchSource) return rule.TargetZoneId;
         }
 
-        throw new UserFriendlyException($"未找到适用的物流路由规则！");
+        //throw new UserFriendlyException($"未找到适用的物流路由规则！");
+        return Guid.Empty;
     }
 }

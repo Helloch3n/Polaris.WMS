@@ -17,7 +17,7 @@ namespace Polaris.WMS.InventoryManage.Application.Contracts.Inventories.Dtos
         /// <summary>
         /// 盘具Id。
         /// </summary>
-        public Guid ReelId { get; set; }
+        public Guid ContainerId { get; set; }
 
         /// <summary>
         /// 物料Id。
@@ -99,7 +99,7 @@ namespace Polaris.WMS.InventoryManage.Application.Contracts.Inventories.Dtos
         /// <summary>
         /// 盘号。
         /// </summary>
-        public string ReelNo { get; set; }
+        public string ContainerCode { get; set; }
 
         /// <summary>
         /// 库位编码。

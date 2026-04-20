@@ -18,7 +18,7 @@ namespace Polaris.WMS.InventoryManage.EntityFrameworkCore.Configurations
                 .IsRequired();
 
             builder.HasIndex(x => x.TransferOrderId);
-            builder.HasIndex(x => x.ReelId);
+            builder.HasIndex(x => x.ContainerId);
             builder.HasIndex(x => x.InventoryId);
         }
     }

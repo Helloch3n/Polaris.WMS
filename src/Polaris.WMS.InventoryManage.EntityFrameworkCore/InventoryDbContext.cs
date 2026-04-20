@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Polaris.WMS.InventoryManage.Domain.inventories;
-using Polaris.WMS.InventoryManage.Domain.Reels;
+using Polaris.WMS.InventoryManage.Domain.Containers;
+using Polaris.WMS.InventoryManage.Domain.CycleCountOrders;
 using Polaris.WMS.InventoryManage.Domain.TransferOrders;
 using Volo.Abp.Data;
 using Volo.Abp.EntityFrameworkCore;
@@ -13,7 +14,7 @@ namespace Polaris.WMS.InventoryManage.EntityFrameworkCore;
 public class InventoryDbContext : AbpDbContext<InventoryDbContext>, IInventoryDbContext
 {
     // 声明当前模块管辖的实体
-    public DbSet<Reel> Reels { get; set; }
+    public DbSet<Container> Containers { get; set; }
 
     // Inventory
     public DbSet<Inventory> Inventorys { get; set; }
@@ -22,6 +23,10 @@ public class InventoryDbContext : AbpDbContext<InventoryDbContext>, IInventoryDb
     // Transfer
     public DbSet<TransferOrder> TransferOrders { get; set; }
     public DbSet<TransferOrderDetail> TransferOrderDetails { get; set; }
+
+    // CycleCount
+    public DbSet<CycleCountOrder> CycleCountOrders { get; set; }
+    public DbSet<CycleCountOrderDetail> CycleCountOrderDetails { get; set; }
 
     public InventoryDbContext(DbContextOptions<InventoryDbContext> options)
         : base(options)

@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Polaris.WMS.Integration.Departments;
 using Polaris.WMS.InventoryManage.Application.Contracts.TransferOrders;
 using Polaris.WMS.InventoryManage.Application.Contracts.TransferOrders.Dtos;
-using Polaris.WMS.InventoryManage.Domain.Reels;
+using Polaris.WMS.InventoryManage.Domain.Containers;
 using Polaris.WMS.InventoryManage.Domain.TransferOrders;
 using Polaris.WMS.Isolation;
 using Polaris.WMS.MasterData.Application.Contracts.Integration.Locations;
@@ -23,7 +23,7 @@ namespace Polaris.WMS.InventoryManage.Application.TransferOrders
     /// </summary>
     public class TransferAppService(
         IRepository<TransferOrder, Guid> transferOrderRepository,
-        IRepository<Reel, Guid> reelRepository,
+        IRepository<Container, Guid> containerRepository,
         TransferOrderManager transferOrderManager,
         TransferMappers transferMapper,
         IWMSContextProvider wmsContextProvider,
@@ -50,18 +50,18 @@ namespace Polaris.WMS.InventoryManage.Application.TransferOrders
             var dto = transferMapper.Map(entity);
 
             // 1. 收集所有需要的 ID
-            var reelIds = dto.Details.Select(x => x.ReelId).Distinct().ToList();
+            var containerIds = dto.Details.Select(x => x.ContainerId).Distinct().ToList();
             var productIds = dto.Details.Select(x => x.ProductId).Distinct().ToList();
             var locationIds = dto.Details.SelectMany(x => new[] { x.SourceLocationId, x.TargetLocationId }).Distinct()
                 .ToList();
 
-            // 2. 本地查询 Reel，跨模块并行查询 Product 和 Location
-            var reelQuery = await reelRepository.GetQueryableAsync();
-            var reels = await AsyncExecuter.ToListAsync(reelQuery.Where(x => reelIds.Contains(x.Id)));
+            // 2. 本地查询 Container，跨模块并行查询 Product 和 Location
+            var reelQuery = await containerRepository.GetQueryableAsync();
+            var reels = await AsyncExecuter.ToListAsync(reelQuery.Where(x => containerIds.Contains(x.Id)));
             var products = await productIntegrationService.GetListByIdsAsync(productIds);
             var locations = await locationIntegrationService.GetListByIdsAsync(locationIds);
 
-            var reelMap = reels.ToDictionary(x => x.Id, x => x.ReelNo);
+            var reelMap = reels.ToDictionary(x => x.Id, x => x.ContainerCode);
             var productMap = products.ToDictionary(x => x.Id, x => x);
             var locationMap = locations.ToDictionary(x => x.Id, x => x);
 
@@ -73,7 +73,7 @@ namespace Polaris.WMS.InventoryManage.Application.TransferOrders
             // 4. 内存极速组装
             foreach (var detail in dto.Details)
             {
-                if (reelMap.TryGetValue(detail.ReelId, out var reelNo)) detail.ReelCode = reelNo;
+                if (reelMap.TryGetValue(detail.ContainerId, out var containerCode)) detail.ReelCode = containerCode;
 
                 if (productMap.TryGetValue(detail.ProductId, out var product))
                 {
@@ -215,7 +215,7 @@ namespace Polaris.WMS.InventoryManage.Application.TransferOrders
             {
                 order.AddDetail(
                     GuidGenerator.Create(),
-                    detail.ReelId,
+                    detail.ContainerId,
                     detail.InventoryId,
                     detail.ProductId,
                     detail.Qty,
@@ -224,27 +224,27 @@ namespace Polaris.WMS.InventoryManage.Application.TransferOrders
             }
 
             // 第三步：锁定本次调拨单涉及的盘具
-            var reelIds = input.Details
-                .Select(x => x.ReelId)
+            var containerIds = input.Details
+                .Select(x => x.ContainerId)
                 .Distinct()
                 .ToList();
 
-            if (reelIds.Count > 0)
+            if (containerIds.Count > 0)
             {
-                var reelQuery = await reelRepository.GetQueryableAsync();
-                var reels = await AsyncExecuter.ToListAsync(reelQuery.Where(x => reelIds.Contains(x.Id)));
+                var reelQuery = await containerRepository.GetQueryableAsync();
+                var reels = await AsyncExecuter.ToListAsync(reelQuery.Where(x => containerIds.Contains(x.Id)));
 
-                foreach (var reel in reels)
+                foreach (var container in reels)
                 {
-                    if (reel.IsLocked)
+                    if (container.IsLocked)
                     {
                         throw new BusinessException("存在已锁定盘具，无法创建调拨单")
-                            .WithData("ReelId", reel.Id)
-                            .WithData("ReelNo", reel.ReelNo);
+                            .WithData("ContainerId", container.Id)
+                            .WithData("ContainerCode", container.ContainerCode);
                     }
 
-                    reel.Lock($"调拨单锁定：{order.OrderNo}");
-                    await reelRepository.UpdateAsync(reel);
+                    container.Lock($"调拨单锁定：{order.OrderNo}");
+                    await containerRepository.UpdateAsync(container);
                 }
             }
 
@@ -287,8 +287,8 @@ namespace Polaris.WMS.InventoryManage.Application.TransferOrders
             var targetWarehouseId = input.TargetWarehouseId ?? Guid.Empty;
             order.UpdateWarehouses(sourceWarehouseId, targetWarehouseId);
 
-            // 第二步：记录更新前 Reel 集合，用于锁定差异分析
-            var oldReelIds = order.Details.Select(x => x.ReelId).Distinct().ToHashSet();
+            // 第二步：记录更新前 Container 集合，用于锁定差异分析
+            var oldContainerIds = order.Details.Select(x => x.ContainerId).Distinct().ToHashSet();
 
             var incomingDetails = input.Details ?? new List<TransferDetailDto>();
             var incomingDetailIds = incomingDetails
@@ -315,7 +315,7 @@ namespace Polaris.WMS.InventoryManage.Application.TransferOrders
                 {
                     order.AddDetail(
                         GuidGenerator.Create(),
-                        detail.ReelId,
+                        detail.ContainerId,
                         detail.InventoryId,
                         detail.ProductId,
                         detail.Qty,
@@ -326,7 +326,7 @@ namespace Polaris.WMS.InventoryManage.Application.TransferOrders
                 {
                     order.UpdateDetail(
                         detail.Id,
-                        detail.ReelId,
+                        detail.ContainerId,
                         detail.InventoryId,
                         detail.ProductId,
                         detail.Qty,
@@ -335,36 +335,36 @@ namespace Polaris.WMS.InventoryManage.Application.TransferOrders
                 }
             }
 
-            // 第五步：对 Reel 锁定做差异分析（新增锁定、移除解锁）
-            var newReelIds = order.Details.Select(x => x.ReelId).Distinct().ToHashSet();
-            var toLockReelIds = newReelIds.Except(oldReelIds).ToList();
-            var toUnlockReelIds = oldReelIds.Except(newReelIds).ToList();
+            // 第五步：对 Container 锁定做差异分析（新增锁定、移除解锁）
+            var newContainerIds = order.Details.Select(x => x.ContainerId).Distinct().ToHashSet();
+            var toLockContainerIds = newContainerIds.Except(oldContainerIds).ToList();
+            var toUnlockContainerIds = oldContainerIds.Except(newContainerIds).ToList();
 
-            var changedReelIds = toLockReelIds.Union(toUnlockReelIds).Distinct().ToList();
-            if (changedReelIds.Count > 0)
+            var changedContainerIds = toLockContainerIds.Union(toUnlockContainerIds).Distinct().ToList();
+            if (changedContainerIds.Count > 0)
             {
-                var reelQuery = await reelRepository.GetQueryableAsync();
-                var reels = await AsyncExecuter.ToListAsync(reelQuery.Where(x => changedReelIds.Contains(x.Id)));
+                var reelQuery = await containerRepository.GetQueryableAsync();
+                var reels = await AsyncExecuter.ToListAsync(reelQuery.Where(x => changedContainerIds.Contains(x.Id)));
 
-                foreach (var reel in reels)
+                foreach (var container in reels)
                 {
-                    if (toLockReelIds.Contains(reel.Id))
+                    if (toLockContainerIds.Contains(container.Id))
                     {
-                        if (reel.IsLocked)
+                        if (container.IsLocked)
                         {
                             throw new BusinessException("存在已锁定盘具，无法更新调拨单")
-                                .WithData("ReelId", reel.Id)
-                                .WithData("ReelNo", reel.ReelNo);
+                                .WithData("ContainerId", container.Id)
+                                .WithData("ContainerCode", container.ContainerCode);
                         }
 
-                        reel.Lock($"调拨单锁定：{order.OrderNo}");
-                        await reelRepository.UpdateAsync(reel);
+                        container.Lock($"调拨单锁定：{order.OrderNo}");
+                        await containerRepository.UpdateAsync(container);
                     }
 
-                    if (toUnlockReelIds.Contains(reel.Id) && reel.IsLocked)
+                    if (toUnlockContainerIds.Contains(container.Id) && container.IsLocked)
                     {
-                        reel.UnLock();
-                        await reelRepository.UpdateAsync(reel);
+                        container.UnLock();
+                        await containerRepository.UpdateAsync(container);
                     }
                 }
             }

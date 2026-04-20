@@ -8,7 +8,7 @@ namespace Polaris.WMS.InventoryManage.Domain.inventories
 {
     public class Inventory : FullAuditedAggregateRoot<Guid>
     {
-        public Guid ReelId { get; private set; }
+        public Guid ContainerId { get; private set; }
         public Guid ProductId { get; private set; }
         public decimal Quantity { get; private set; }
         public decimal AvailableQuantity => Quantity - LockedQuantity;
@@ -33,7 +33,7 @@ namespace Polaris.WMS.InventoryManage.Domain.inventories
 
         internal Inventory(
             Guid id,
-            Guid reelId,
+            Guid containerId,
             Guid productId,
             decimal quantity,
             string unit,
@@ -48,7 +48,7 @@ namespace Polaris.WMS.InventoryManage.Domain.inventories
             InventoryStatus status = InventoryStatus.Good,
             InventoryType type = InventoryType.SemiFinished) : base(id)
         {
-            ReelId = reelId;
+            ContainerId = containerId;
             ProductId = productId;
             Quantity = quantity;
             LockedQuantity = 0;
@@ -158,7 +158,7 @@ namespace Polaris.WMS.InventoryManage.Domain.inventories
         }
 
         public static Inventory CreateHoldInventory(Guid id,
-            Guid reelId,
+            Guid containerId,
             Guid productId,
             decimal quantity,
             string unit,
@@ -175,7 +175,7 @@ namespace Polaris.WMS.InventoryManage.Domain.inventories
         {
             var inventory = new Inventory(
                 id,
-                reelId,
+                containerId,
                 productId,
                 quantity,
                 unit,

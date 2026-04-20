@@ -16,7 +16,7 @@ namespace Polaris.WMS.InventoryManage.Domain.TransferOrders
         /// <summary>
         /// 盘具Id。
         /// </summary>
-        public Guid ReelId { get; private set; }
+        public Guid ContainerId { get; private set; }
 
         /// <summary>
         /// 库存Id。
@@ -55,7 +55,7 @@ namespace Polaris.WMS.InventoryManage.Domain.TransferOrders
         internal TransferOrderDetail(
             Guid id,
             Guid transferOrderId,
-            Guid reelId,
+            Guid containerId,
             Guid inventoryId,
             Guid productId,
             decimal qty,
@@ -64,7 +64,7 @@ namespace Polaris.WMS.InventoryManage.Domain.TransferOrders
             : base(id)
         {
             TransferOrderId = transferOrderId;
-            ReelId = reelId;
+            ContainerId = containerId;
             InventoryId = inventoryId;
             ProductId = productId;
             Qty = qty > 0
@@ -88,14 +88,14 @@ namespace Polaris.WMS.InventoryManage.Domain.TransferOrders
         /// 更新明细内容。
         /// </summary>
         internal void Update(
-            Guid reelId,
+            Guid containerId,
             Guid inventoryId,
             Guid productId,
             decimal qty,
             Guid sourceLocationId,
             Guid targetLocationId)
         {
-            ReelId = reelId;
+            ContainerId = containerId;
             InventoryId = inventoryId;
             ProductId = productId;
             Qty = qty > 0

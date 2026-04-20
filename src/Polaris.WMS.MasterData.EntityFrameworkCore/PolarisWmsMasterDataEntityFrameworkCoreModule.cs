@@ -1,6 +1,10 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Polaris.WMS.MasterData.Domain.AccountAliases;
+using Polaris.WMS.MasterData.Domain.CostCenters;
 using Polaris.WMS.MasterData.Domain.Locations;
 using Polaris.WMS.MasterData.Domain.Zones;
+using Polaris.WMS.MasterData.EntityFrameworkCore.AccountAliases;
+using Polaris.WMS.MasterData.EntityFrameworkCore.CostCenters;
 using Polaris.WMS.MasterData.EntityFrameworkCore.Locations;
 using Polaris.WMS.MasterData.EntityFrameworkCore.Zones;
 using Volo.Abp.Modularity;
@@ -20,6 +24,10 @@ public class PolarisWmsMasterDataEntityFrameworkCoreModule : AbpModule
                 .AddRepository<Zone, ZoneRepository>();
             options
                 .AddRepository<Location, LocationRepository>();
+            options
+                .AddRepository<CostCenter, CostCenterRepository>();
+            options
+                .AddRepository<AccountAlias, AccountAliasRepository>();
         });
     }
 }

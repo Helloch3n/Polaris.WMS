@@ -4,7 +4,7 @@ namespace Polaris.WMS.InventoryManage.Application.Contracts.Inventories.Dtos
 {
     public class ProductionReceiveInput
     {
-        public Guid ReelId { get; set; }
+        public Guid ContainerId { get; set; }
         public Guid ProductId { get; set; }
         public decimal Quantity { get; set; }
         public decimal Weight { get; set; }

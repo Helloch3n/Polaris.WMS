@@ -13,10 +13,10 @@ public class InventoryIntegrationService(
     InventoryManager inventoryManager)
     : ApplicationService, IInventoryIntegrationService
 {
-    public async Task<List<InventoryIntegrationDto>> GetInventoryByReels(List<Guid> reelIds)
+    public async Task<List<InventoryIntegrationDto>> GetInventoryByContainers(List<Guid> containerIds)
     {
         // 1. 边界防护：防止传入空集合导致 EF Core 生成无效的 WHERE IN () SQL
-        if (reelIds == null || !reelIds.Any())
+        if (containerIds == null || !containerIds.Any())
         {
             return new List<InventoryIntegrationDto>();
         }
@@ -25,8 +25,8 @@ public class InventoryIntegrationService(
         // 假设你在构造函数中注入了 IRepository<Inventory, Guid> inventoryRepository
         var query = await inventoryRepository.GetQueryableAsync();
 
-        // 注意：这里的 x.ReelId 请替换为你库存实体中实际关联盘具的字段名（比如 ContainerId）
-        var inventories = await AsyncExecuter.ToListAsync(query.Where(x => reelIds.Contains(x.ReelId)));
+        // 注意：这里的 x.ContainerId 请替换为你库存实体中实际关联盘具的字段名（比如 ContainerId）
+        var inventories = await AsyncExecuter.ToListAsync(query.Where(x => containerIds.Contains(x.ContainerId)));
 
         // 3. 结果组装：映射为外部模块需要的 DTO
         return inventories.Select(x => new InventoryIntegrationDto
@@ -35,14 +35,14 @@ public class InventoryIntegrationService(
         }).ToList();
     }
 
-    public async Task ReceiveProductionAsync(ProductionReceiveByReelInput input)
+    public async Task ReceiveProductionAsync(ProductionReceiveByContainerInput input)
     {
-        var domainArgs = new ReceiveReelArgs
+        var domainArgs = new ReceiveContainerArgs
         {
             OrderNo = input.OrderNo,
-            ReelId = input.ReelId,
+            ContainerId = input.ContainerId,
             LocationId = input.LocationId,
-            Items = input.Items.Select(x => new ReceiveReelItemArgs
+            Items = input.Items.Select(x => new ReceiveContainerItemArgs
             {
                 ProductId = x.ProductId,
                 Qty = x.Qty,
@@ -57,6 +57,6 @@ public class InventoryIntegrationService(
                 Status = x.Status
             }).ToList()
         };
-        await inventoryManager.ReceiveByReelAsync(domainArgs);
+        await inventoryManager.ReceiveByContainerAsync(domainArgs);
     }
 }

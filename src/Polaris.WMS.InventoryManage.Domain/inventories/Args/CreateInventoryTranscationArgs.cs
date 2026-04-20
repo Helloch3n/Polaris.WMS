@@ -11,7 +11,7 @@ public class CreateInventoryTranscationArgs
     public string BillNo { get; set; }
     public Guid InventoryId { get; set; }
 
-    public Guid ReelId { get; set; }
+    public Guid ContainerId { get; set; }
     public Guid ProductId { get; set; }
     public decimal Quantity { get; set; }
 

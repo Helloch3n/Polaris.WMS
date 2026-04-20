@@ -15,10 +15,10 @@ public class ExternalInventoryProvider(
 
     public async Task ReceiveProductionAsync(ExternalProductionReceiveInfo info)
     {
-        var dto = new ProductionReceiveByReelInput
+        var dto = new ProductionReceiveByContainerInput
         {
             OrderNo = info.OrderNo,
-            ReelId = info.ReelId,
+            ContainerId = info.ReelId,
             LocationId = info.ActualLocationId,
         };
         foreach (var item in info.Items)

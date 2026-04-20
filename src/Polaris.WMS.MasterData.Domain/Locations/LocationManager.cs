@@ -20,7 +20,7 @@ namespace Polaris.WMS.MasterData.Domain.Locations
         )
         : DomainService
     {
-        private IExternalReelProvider ExternalReelProvider => LazyServiceProvider.LazyGetRequiredService<IExternalReelProvider>();
+        private IExternalContainerProvider ExternalContainerProvider => LazyServiceProvider.LazyGetRequiredService<IExternalContainerProvider>();
         private IExternalInventoryProvider ExternalInventoryProvider => LazyServiceProvider.LazyGetRequiredService<IExternalInventoryProvider>();
         /// <summary>
         /// 根据库位装载情况刷新库位状态。
@@ -30,21 +30,21 @@ namespace Polaris.WMS.MasterData.Domain.Locations
         {
             var location = await locationRepository.GetAsync(locationId);
 
-            var reels = await ExternalReelProvider.GetReelInfosByLocationIdAsync(locationId);
-            var reelCount = reels.Count;
+            var containers = await ExternalContainerProvider.GetContainerInfosByLocationIdAsync(locationId);
+            var containerCount = containers.Count;
 
-            var reelIds = reels.Select(x => x.Id).ToList();
+            var containerIds = containers.Select(x => x.Id).ToList();
             var inventoryCount = 0;
-            if (reelIds.Count > 0)
+            if (containerIds.Count > 0)
             {
-                var inventorys = await ExternalInventoryProvider.GetInventoryByReels(reelIds);
+                var inventorys = await ExternalInventoryProvider.GetInventoryByContainers(containerIds);
                 inventoryCount = inventorys.Count;
             }
 
-            var newStatus = reelCount switch
+            var newStatus = containerCount switch
             {
                 0 => LocationStatus.Idle,
-                _ when reelCount >= location.MaxReelCount => LocationStatus.Full,
+                _ when containerCount >= location.MaxReelCount => LocationStatus.Full,
                 _ => LocationStatus.Partial
             };
 
