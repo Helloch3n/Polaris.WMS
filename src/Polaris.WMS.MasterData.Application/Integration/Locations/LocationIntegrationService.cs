@@ -54,7 +54,9 @@ public class LocationIntegrationService(
         return new LocationIntegrationDto
         {
             Id = location.Id,
-            WarehouseId = location.WarehouseId
+            WarehouseId = location.WarehouseId,
+            Code = location.Code,
+            Status = location.Status
         };
     }
 

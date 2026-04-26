@@ -22,6 +22,9 @@ public class ExternalContainerProvider(
         return new ExternalContainerInfo
         {
             Id = dto.Id,
+            Code = dto.Code,
+            Name = dto.Name,
+            CurrentLocationId = dto.LocationId,
             ContainerCode = dto.ContainerCode
         };
     }

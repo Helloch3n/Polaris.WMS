@@ -8,8 +8,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Polaris.WMS.Application.Contracts\Polaris.WMS.Application.Contracts.csproj"/>
+    <ProjectReference Include="..\Polaris.WMS.InventoryManage.Application.Contracts\Polaris.WMS.InventoryManage.Application.Contracts.csproj" />
+    <ProjectReference Include="..\Polaris.WMS.MasterData.Application.Contracts\Polaris.WMS.MasterData.Application.Contracts.csproj" />
     <ProjectReference Include="..\Polaris.WMS.Outbound.Application.Contracts\Polaris.WMS.Outbound.Application.Contracts.csproj"/>
     <ProjectReference Include="..\Polaris.WMS.Outbound.Domain\Polaris.WMS.Outbound.Domain.csproj"/>
+    <ProjectReference Include="..\Polaris.WMS.TaskRouting.Application.Contracts\Polaris.WMS.TaskRouting.Application.Contracts.csproj" />
   </ItemGroup>
 
   <ItemGroup>

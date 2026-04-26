@@ -30,5 +30,10 @@ public interface IMiscOutboundOrderAppService : IApplicationService
     /// 删除其他出库单。
     /// </summary>
     Task DeleteAsync(Guid id);
+
+    /// <summary>
+    /// 审核并执行其他出库单。
+    /// </summary>
+    Task ApproveAndExecuteAsync(Guid id);
 }
 

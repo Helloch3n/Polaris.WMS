@@ -6,4 +6,6 @@ public interface ILocationAllocationProvider : ITransientDependency
 {
    // Task<Guid> FindBestLocationIdAsync(Guid targetZoneId);
     Task<Guid> GetZoneIdByLocationIdAsync(Guid locationId);
+
+    Task<bool> IsLockedAsync(Guid locationId);
 }

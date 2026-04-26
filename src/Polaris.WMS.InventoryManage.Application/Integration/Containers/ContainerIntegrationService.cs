@@ -69,7 +69,10 @@ public class ContainerIntegrationService(
         return new ContainerIntegrationDto
         {
             Id = container.Id,
-            ContainerCode = container.ContainerCode
+            ContainerCode = container.ContainerCode,
+            Code = container.ContainerCode,
+            Name = container.Name,
+            LocationId = container.CurrentLocationId
         };
     }
 }

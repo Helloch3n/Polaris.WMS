@@ -32,7 +32,13 @@ using Polaris.WMS.MasterData.Domain.CostCenters;
 using Polaris.WMS.MasterData.Domain.warehouses;
 using Polaris.WMS.MasterData.Domain.Zones;
 using Polaris.WMS.MasterData.EntityFrameworkCore;
+using Polaris.WMS.Outbound.Domain.Handovers;
 using Polaris.WMS.Outbound.Domain.MiscOrders;
+using Polaris.WMS.Outbound.Domain.PickLists;
+using Polaris.WMS.Outbound.Domain.Reviews;
+using Polaris.WMS.Outbound.Domain.SalesOrders;
+using Polaris.WMS.Outbound.Domain.SalesShipments;
+using Polaris.WMS.Outbound.Domain.WaveOrders;
 using Polaris.WMS.Outbound.EntityFrameworkCore;
 using Polaris.WMS.TaskRouting.Domain.LogisticsStrategies;
 using Polaris.WMS.TaskRouting.Domain.MoveTasks;
@@ -165,6 +171,20 @@ public class WMSDbContext :
     #region 出库模块 (Outbound)
     public DbSet<MiscOutboundOrder> MiscOutboundOrders { get; set; }
     public DbSet<MiscOutboundOrderDetail> MiscOutboundOrderDetails { get; set; }
+    public DbSet<SalesOrder> SalesOrders { get; set; }
+    public DbSet<SalesOrderDetail> SalesOrderDetails { get; set; }
+    public DbSet<SalesShipment> SalesShipments { get; set; }
+    public DbSet<SalesShipmentDetail> SalesShipmentDetails { get; set; }
+    public DbSet<SalesShipmentAllocation> SalesShipmentAllocations { get; set; }
+    public DbSet<SalesShipmentRecord> SalesShipmentRecords { get; set; }
+    public DbSet<WaveOrder> WaveOrders { get; set; }
+    public DbSet<WaveOrderLine> WaveOrderLines { get; set; }
+    public DbSet<PickList> PickLists { get; set; }
+    public DbSet<PickListLine> PickListLines { get; set; }
+    public DbSet<OutboundReviewOrder> OutboundReviewOrders { get; set; }
+    public DbSet<OutboundReviewLine> OutboundReviewLines { get; set; }
+    public DbSet<OutboundHandoverOrder> OutboundHandoverOrders { get; set; }
+    public DbSet<OutboundHandoverLine> OutboundHandoverLines { get; set; }
     #endregion
 
     /// <summary>

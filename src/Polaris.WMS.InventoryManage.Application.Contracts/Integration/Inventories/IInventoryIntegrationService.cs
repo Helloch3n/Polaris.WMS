@@ -8,4 +8,5 @@ public interface IInventoryIntegrationService : IApplicationService
 {
     public Task<List<InventoryIntegrationDto>> GetInventoryByContainers(List<Guid> containerIds);
     Task ReceiveProductionAsync(ProductionReceiveByContainerInput input);
+    Task ShipAsync(ShipByContainerInput input);
 }

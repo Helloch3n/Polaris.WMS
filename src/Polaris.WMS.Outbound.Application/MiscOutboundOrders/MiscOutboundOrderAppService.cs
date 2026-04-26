@@ -9,9 +9,22 @@ using Volo.Abp.Domain.Repositories;
 
 namespace Polaris.WMS.Outbound.Application.MiscOutboundOrders;
 
-public class MiscOutboundOrderAppService(IRepository<MiscOutboundOrder, Guid> repository)
+public class MiscOutboundOrderAppService(
+    IRepository<MiscOutboundOrder, Guid> repository,
+    MiscOutboundOrderManager miscOutboundOrderManager)
     : ApplicationService, IMiscOutboundOrderAppService
 {
+    /// <inheritdoc />
+    public async Task ApproveAndExecuteAsync(Guid id)
+    {
+        if (id == Guid.Empty)
+        {
+            throw new BusinessException("其他出库单Id不能为空。");
+        }
+
+        await miscOutboundOrderManager.ApproveAndExecuteAsync(id);
+    }
+
     /// <inheritdoc />
     public async Task<MiscOutboundOrderDto> CreateAsync(CreateMiscOutboundOrderDto input)
     {
